@@ -2,37 +2,126 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
-  <title>Validador Milton Tech</title>
+  <title>Validador Milton Tech - Cartão + Gestão</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#1a1a2e">
   <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:Arial; background:#0d1b2a; color:white; text-align:center; }
-    #header { background:#1b263b; padding:18px; font-weight:bold; font-size:20px; }
-    #reader { width:100%; max-width:500px; margin:20px auto; }
-    #status { padding:25px; font-size:16px; color:#e0e1dd; }
-    #footer { position:fixed; bottom:10px; width:100%; font-size:12px; color:#778da9; }
+    body { font-family:Arial; background:#0f0f1a; color:#fff; }
+    #cabecalho { background:#1b263b; padding:20px; text-align:center; }
+    #cabecalho h1 { color:#0f0; }
+   .secao { padding:20px; text-align:center; border-bottom:1px solid #333; }
+   .secao h2 { margin-bottom:15px; color:#4285F4; }
+    button { padding:15px 25px; font-size:16px; background:#0f0; color:#000; border:none; border-radius:8px; font-weight:bold; }
+    button.azul { background:#4285F4; color:#fff; }
+    #areaResultadoCartao, #areaResultadoPlanilha { margin-top:20px; }
+    iframe { width:100%; height:500px; border:2px solid #4285F4; margin-top:10px; }
+    #rodape { position:fixed; bottom:0; width:100%; background:#1b263b; padding:10px; text-align:center; font-size:12px; }
+   .msg-verde { background:#003300; color:#00ff00; padding:15px; border:2px solid #0f0; }
+   .msg-vermelho { background:#330000; color:#ff0000; padding:15px; border:2px solid #f00; }
   </style>
 </head>
 <body>
-  <div id="header">MILTON TECH - VALIDADOR OFICIAL</div>
-  <div id="reader"></div>
-  <div id="status">Aponte a câmera para o QR Code do ingresso</div>
-  <div id="footer">Sistema Validador v1.0</div>
+  <div id="cabecalho">
+    <h1>MILTON TECH - VALIDADOR</h1>
+    <p>Sistema Cartão + Gestão Planilhas</p>
+  </div>
 
-  <script>
-    function onScanSuccess(decodedText) {
-      document.getElementById('status').innerText = 'INGRESSO VÁLIDO: ' + decodedText;
-      document.getElementById('status').style.color = '#2ecc71';
+  <!-- SEÇÃO 1: VALIDADOR DE CARTÃO -->
+  <div class="secao">
+    <h2>🎫 Validador de Cartão</h2>
+    <button onclick="abrirLeitorCartao()">ESCANEAR CARTÃO</button>
+    <div id="areaResultadoCartao"></div>
+  </div>
+
+  <!-- SEÇÃO 2: LEITOR DE PLANILHA -->
+  <div class="secao">
+    <h2>📊 SVC Gestão - Planilhas</h2>
+    <button class="azul" onclick="abrirLeitorPlanilha()">ESCANEAR QR DA PLANILHA</button>
+    <div id="areaResultadoPlanilha"></div>
+  </div>
+
+  <div id="rodape">Sistema Validador v2.0 - Milton Tech</div>
+
+<script>
+// ========== CONFIGURAÇÃO ==========
+// Lista de cartões válidos - TROCA PELOS TEUS CÓDIGOS REAIS
+const listaCartoes = {
+  "CARTAO-001": { nome: "João Silva", saldo: "15.500 Kz", status: "Ativo" },
+  "CARTAO-002": { nome: "Ana Costa", saldo: "7.750 Kz", status: "Ativo" }
+};
+
+// Lista de planilhas - TROCA PELOS IDs REAIS DO GOOGLE SHEETS
+const listaPlanilhas = {
+  "SVC-PLANILHA-CLINICA-SANTA-MARIA": "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms",
+  "SVC-PLANILHA-CAIXA-DIARIO": "COLA O ID DA TUA PLANILHA AQUI",
+  "SVC-PLANILHA-RELATORIO-MAIO": "COLA O ID DA TUA PLANILHA AQUI"
+};
+
+// ========== FUNÇÃO VALIDADOR DE CARTÃO ==========
+function abrirLeitorCartao() {
+  const leitorQR = new Html5Qrcode("areaResultadoCartao");
+  document.getElementById("areaResultadoCartao").innerHTML = "Aponte a câmera para o cartão...";
+  
+  leitorQR.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 },
+    (codigoLido) => {
+      leitorQR.stop();
+      let cartao = listaCartoes[codigoLido];
+      
+      if(cartao && cartao.status === "Ativo") {
+        document.getElementById("areaResultadoCartao").innerHTML = `
+          <div class="msg-verde">
+            <h3>✅ CARTÃO VÁLIDO</h3>
+            <p><b>Nome:</b> ${cartao.nome}</p>
+            <p><b>Saldo:</b> ${cartao.saldo}</p>
+            <button onclick="usarCartao('${codigoLido}')">DEBITAR 465 Kz</button>
+          </div>
+        `;
+      } else {
+        document.getElementById("areaResultadoCartao").innerHTML = `
+          <div class="msg-vermelho">
+            <h3>❌ CARTÃO INVÁLIDO</h3>
+            <p>Código não encontrado ou inativo: ${codigoLido}</p>
+          </div>
+        `;
+      }
     }
-    function onScanFailure(error) {
-      // ignora erro
+  );
+}
+
+function usarCartao(codigo) {
+  // Aqui tu debita no teu banco
+  delete listaCartoes[codigo]; // Remove pra não usar 2x
+  document.getElementById("areaResultadoCartao").innerHTML = `
+    <div class="msg-verde">
+      <h3>🎉 DÉBITO REALIZADO!</h3>
+      <p>465 Kz debitados do cartão ${codigo}</p>
+    </div>
+  `;
+}
+
+// ========== FUNÇÃO LEITOR DE PLANILHA ==========
+function abrirLeitorPlanilha() {
+  const leitorQR = new Html5Qrcode("areaResultadoPlanilha");
+  document.getElementById("areaResultadoPlanilha").innerHTML = "Aponte a câmera para o QR da planilha...";
+  
+  leitorQR.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 },
+    (codigoLido) => {
+      leitorQR.stop();
+      let idPlanilha = listaPlanilhas[codigoLido] || codigoLido;
+      let linkCompleto = `https://docs.google.com/spreadsheets/d/${idPlanilha}/edit?rm=minimal`;
+      
+      document.getElementById("areaResultadoPlanilha").innerHTML = `
+        <h3>✅ Planilha: ${codigoLido}</h3>
+        <iframe src="${linkCompleto}"></iframe>
+        <p><a href="${linkCompleto}" target="_blank" style="color:#4285F4;">↗️ Abrir em tela cheia</a></p>
+      `;
     }
-    let html5QrcodeScanner = new Html5QrcodeScanner(
-      "reader", { fps: 10, qrbox: 250 });
-    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-  </script>
+  );
+}
+</script>
+
 </body>
-</html>
+    </html>
