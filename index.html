@@ -4,35 +4,35 @@
   <meta charset="UTF-8">
   <title>Validador Milton Tech</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0d1b2a"/>
-  <link rel="manifest" href="data:application/manifest+json,{&quot;name&quot;:&quot;Validador Milton Tech&quot;,&quot;short_name&quot;:&quot;Milton Tech&quot;,&quot;start_url&quot;:&quot;.&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;#0d1b2a&quot;,&quot;theme_color&quot;:&quot;#0d1b2a&quot;,&quot;icons&quot;:[{&quot;src&quot;:&quot;https://i.imgur.com/8pwt6Zk.png&quot;,&quot;sizes&quot;:&quot;192x192&quot;,&quot;type&quot;:&quot;image/png&quot;}]}">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a1a2e">
   <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:Arial; background:#0d1b2a; color:white; text-align:center; }
-    #header { background:#1b263b; padding:18px; font-size:20px; font-weight:bold; letter-spacing:1px; }
-    #reader { width:100%; max-width:500px; margin:0 auto; border-bottom:4px solid #415a77; }
-    #status { padding:25px; font-size:16px; color:#778da9; min-height:70px; }
-    #footer { position:fixed; bottom:10px; width:100%; font-size:12px; color:#415a77; }
+    #header { background:#1b263b; padding:18px; font-weight:bold; font-size:20px; }
+    #reader { width:100%; max-width:500px; margin:20px auto; }
+    #status { padding:25px; font-size:16px; color:#e0e1dd; }
+    #footer { position:fixed; bottom:10px; width:100%; font-size:12px; color:#778da9; }
   </style>
 </head>
 <body>
   <div id="header">MILTON TECH - VALIDADOR OFICIAL</div>
   <div id="reader"></div>
-  <div id="status">Aponte a câmera para o QR Code do cartão</div>
-  <div id="footer">Sistema Anti-Calote v1.0</div>
-  
+  <div id="status">Aponte a câmera para o QR Code do ingresso</div>
+  <div id="footer">Sistema Validador v1.0</div>
+
   <script>
     function onScanSuccess(decodedText) {
-      document.getElementById('status').innerHTML = '<strong style="color:#2a9d8f;">QR DETECTADO</strong><br>Abrindo ficha...';
-      setTimeout(() => { window.location.href = decodedText; }, 800);
+      document.getElementById('status').innerText = 'INGRESSO VÁLIDO: ' + decodedText;
+      document.getElementById('status').style.color = '#2ecc71';
     }
-    let html5QrcodeScanner = new Html5QrcodeScanner("reader", { 
-      fps: 10, 
-      qrbox: {width: 280, height: 280},
-      rememberLastUsedCamera: true
-    });
-    html5QrcodeScanner.render(onScanSuccess);
+    function onScanFailure(error) {
+      // ignora erro
+    }
+    let html5QrcodeScanner = new Html5QrcodeScanner(
+      "reader", { fps: 10, qrbox: 250 });
+    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
   </script>
 </body>
 </html>
