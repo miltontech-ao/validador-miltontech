@@ -1,1 +1,174 @@
-<!DOCTYPE html><html><head><base target="_top"><meta name="viewport" content="width=device-width, initial-scale=1.0"><script src="https://unpkg.com/html5-qrcode"></script><style>body{font-family:Arial,sans-serif;text-align:center;background:#121212;color:white;margin:0;padding:20px}#reader{width:100%;max-width:500px;margin:20px auto;border-radius:12px}.resultado{padding:30px;margin-top:20px;border-radius:12px;font-size:20px;font-weight:bold}.verde{background:#1DB954}.vermelho{background:#E50914}button{background:#1DB954;color:white;border:none;padding:15px 25px;font-size:16px;border-radius:8px;margin:10px 5px}.btn-imagem{background:#333}input[type=file]{display:none}</style></head><body><h1>MILTON TECH</h1><h3>Validador de Cartão</h3><div id="reader"></div><div id="resultado"></div><button onclick="iniciarCamera()">📷 ESCANEAR COM CÂMERA</button><button class="btn-imagem" onclick="document.getElementById('input-imagem').click()">🖼️ LER DE IMAGEM</button><input type="file" id="input-imagem" accept="image/*" onchange="lerImagem(event)"><script>let html5QrCode;function iniciarCamera(){document.getElementById('resultado').innerHTML='';html5QrCode=new Html5Qrcode("reader");html5QrCode.start({facingMode:"environment"},{fps:10,qrbox:250},onScanSuccess,onScanError)}function lerImagem(event){if(event.target.files.length==0)return;document.getElementById('resultado').innerHTML='<p>Lendo imagem...</p>';const imageFile=event.target.files[0];const html5QrCode=new Html5Qrcode("reader");html5QrCode.scanFile(imageFile,true).then(onScanSuccess).catch(err=>{document.getElementById('resultado').className='resultado vermelho';document.getElementById('resultado').innerHTML=`❌ ERRO<br><br>Não achei QR na imagem.`;});}function onScanSuccess(textoDoQR){if(html5QrCode&&html5QrCode.getState()==2){html5QrCode.stop();}document.getElementById('resultado').innerHTML='<p>Verificando...</p>';google.script.run.withSuccessHandler(mostrarResultado).buscarCliente(textoDoQR);}function onScanError(error){}function mostrarResultado(res){const div=document.getElementById('resultado');if(res.valido){div.className='resultado verde';div.innerHTML=`✅ CARTÃO VÁLIDO<br><br>Nome: ${res.nome}<br>Código: ${res.codigo}<br>Status: ${res.status}`;}else{div.className='resultado vermelho';div.innerHTML=`❌ CARTÃO INVÁLIDO<br><br>${res.motivo}`;}}</script></body></html>
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MILTON TECH - Leitor QR</title>
+    <meta name="theme-color" content="#0d47a1">
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        :root { --azul: #0d47a1; --verde: #00c853; --vermelho: #d32f2f; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Arial; background: #0a1929; color: #e3f2fd; }
+      .header { background: var(--azul); padding: 20px 15px; text-align: center; border-radius: 0 0 20px 20px; }
+      .header h1 { font-size: 26px; }
+      .container { padding: 15px; max-width: 450px; margin: 0 auto; }
+        #reader { width: 100%; margin: 20px auto; border-radius: 16px; overflow: hidden; border: 3px solid #1565c0; }
+    .card { background: #132f4c; padding: 20px; border-radius: 16px; margin-top: 16px; border: 1px solid #1e4976; }
+    .ativo { box-shadow: 0 0 0 3px var(--verde) inset; }
+    .bloqueado { box-shadow: 0 0 0 3px var(--vermelho) inset; }
+    .status { font-size: 32px; font-weight: 900; margin: 15px 0; text-align: center; }
+    .verde { color: #4caf50; }
+    .vermelho { color: #f44336; }
+        button { width: 100%; padding: 16px; font-size: 17px; background: var(--azul); color: white; border: none; border-radius: 12px; margin-top: 12px; font-weight: 700; }
+    .btn-sec { background: #1e4976; }
+    .btn-whats { background: #25d366; }
+    .foto-cliente { width: 150px; height: 150px; border-radius: 75px; object-fit: cover; margin: 15px auto; display: block; border: 4px solid #1e4976; }
+    .info { font-size: 16px; line-height: 1.8; color: #bbdefb; }
+    .info strong { color: white; }
+    .stats { display: flex; justify-content: space-around; background: #132f4c; padding: 15px; border-radius: 12px; margin: 15px 0; text-align: center; }
+    .stats div span { display: block; font-size: 24px; font-weight: 800; }
+    .stats div small { color: #90caf9; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>MILTON TECH</h1>
+        <p>Leitor QR - Plano Família Sã</p>
+    </div>
+
+    <div class="container">
+        <div class="stats">
+            <div><span id="contadorDia">0</span><small>Hoje</small></div>
+            <div><span id="contadorAtivo">0</span><small>Ativos</small></div>
+            <div><span id="contadorBloq">0</span><small>Bloqueados</small></div>
+        </div>
+
+        <div id="reader"></div>
+        <div id="resultado"></div>
+
+        <button onclick="iniciarLeitor()">📷 ESCANEAR QR CODE</button>
+        <button class="btn-sec" onclick="lerImagem()">🖼️ LER DE IMAGEM</button>
+    </div>
+
+<script>
+// 1. COLA AQUI O LINK CSV DA TUA PLANILHA
+const URL_PLANILHA_CSV = "COLA_O_LINK_CSV_AQUI";
+
+let html5QrCode, dadosPlanilha = [];
+let historicoHoje = JSON.parse(localStorage.getItem('historicoPFS') || '[]');
+const somBip = new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=");
+
+function atualizarStats() {
+    const lista = historicoHoje || [];
+    document.getElementById('contadorDia').innerText = lista.length;
+    document.getElementById('contadorAtivo').innerText = lista.filter(i => i.status === 'ATIVO').length;
+    document.getElementById('contadorBloq').innerText = lista.filter(i => i.status === 'BLOQUEADO').length;
+}
+
+async function carregarPlanilha() {
+    try {
+        const cache = localStorage.getItem('planilhaPFS');
+        if(cache) dadosPlanilha = JSON.parse(cache);
+        const resposta = await fetch(URL_PLANILHA_CSV);
+        const csv = await resposta.text();
+        const linhas = csv.split("\n").slice(1);
+        dadosPlanilha = linhas.filter(l => l.trim()).map(linha => {
+            const col = linha.split(",");
+            return {
+                nome: col[0]?.trim(),
+                codigo: col[1]?.trim(),
+                dataFim: col[2]?.trim(),
+                status: col[3]?.trim(),
+                foto: col[4]?.trim(),
+                telefone: col[5]?.trim()
+            };
+        });
+        localStorage.setItem('planilhaPFS', JSON.stringify(dadosPlanilha));
+    } catch (e) {}
+    atualizarStats();
+}
+
+function verificarStatus(dataFim) {
+    if(!dataFim) return "BLOQUEADO";
+    const partes = dataFim.split(" ");
+    const data = partes[0].split("/");
+    const hora = partes[1] || "00:00";
+    return new Date() > new Date(`${data[2]}-${data[1]}-${data[0]}T${hora}:00`)? "BLOQUEADO" : "ATIVO";
+}
+
+function salvarHistorico(cliente, status) {
+    historicoHoje.push({
+        hora: new Date().toLocaleTimeString('pt-AO'),
+        nome: cliente.nome,
+        status: status
+    });
+    localStorage.setItem('historicoPFS', JSON.stringify(historicoHoje));
+    atualizarStats();
+}
+
+function compartilharWhats(cliente, status) {
+    const msg = `*MILTON TECH - Plano Família Sã*%0A%0A*Cliente:* ${cliente.nome}%0A*Código:* ${cliente.codigo}%0A*Status:* ${status}%0A*Validade:* ${cliente.dataFim}%0A%0A_Validado às ${new Date().toLocaleTimeString('pt-AO')}_`;
+    window.open(`https://wa.me/?text=${msg}`);
+}
+
+function mostrarCliente(codigo) {
+    const cliente = dadosPlanilha.find(c => c.codigo === codigo.trim());
+    const div = document.getElementById("resultado");
+    somBip.play();
+    if(navigator.vibrate) navigator.vibrate(200);
+
+    if (!cliente) {
+        div.innerHTML = `<div class="card bloqueado"><h2>Cliente não encontrado</h2><p>Código: ${codigo}</p></div>`;
+        return;
+    }
+
+    const status = verificarStatus(cliente.dataFim);
+    salvarHistorico(cliente, status);
+    const classe = status === "ATIVO"? "ativo" : "bloqueado";
+    const cor = status === "ATIVO"? "verde" : "vermelho";
+    const foto = cliente.foto? `<img src="${cliente.foto}" class="foto-cliente" onerror="this.src='https://i.imgur.com/u5M2L5y.png'">` : `<img src="https://i.imgur.com/u5M2L5y.png" class="foto-cliente">`;
+
+    div.innerHTML = `
+        <div class="card ${classe}">
+            ${foto}
+            <h2 style="text-align:center; margin: 10px 0;">${cliente.nome}</h2>
+            <div class="info">
+                <p><strong>Código:</strong> ${cliente.codigo}</p>
+                <p><strong>Telefone:</strong> ${cliente.telefone || 'Não informado'}</p>
+                <p><strong>Válido até:</strong> ${cliente.dataFim}</p>
+            </div>
+            <p class="status ${cor}">${status}</p>
+            <button class="btn-whats" onclick="compartilharWhats(${JSON.stringify(cliente).replace(/"/g, '&quot;')}, '${status}')">📲 ENVIAR NO WHATSAPP</button>
+            <button onclick="iniciarLeitor()">NOVA LEITURA</button>
+        </div>
+    `;
+}
+
+function onScanSuccess(codigo) {
+    if(html5QrCode && html5QrCode.getState() === 2) html5QrCode.stop();
+    mostrarCliente(codigo);
+}
+
+function iniciarLeitor() {
+    document.getElementById("resultado").innerHTML = "";
+    html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 280 }, onScanSuccess);
+}
+
+function lerImagem() {
+    const input = document.createElement("input");
+    input.type = "file"; input.accept = "image/*";
+    input.onchange = e => {
+        if (e.target.files.length == 0) return;
+        new Html5Qrcode("reader").scanFile(e.target.files[0], true).then(onScanSuccess).catch(err => {
+            document.getElementById("resultado").innerHTML = `<div class="card bloqueado"><h2>QR não encontrado</h2></div>`;
+        });
+    };
+    input.click();
+}
+
+carregarPlanilha();
+</script>
+</body>
+  </html>
