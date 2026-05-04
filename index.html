@@ -3,90 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MILTON TECH - Scanner Híbrido</title>
+    <title>MILTON TECH - Validador Offline</title>
     <meta name="theme-color" content="#0d47a1">
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root { --azul: #0d47a1; --verde: #00c853; --vermelho: #d32f2f; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', Arial; background: #0a1929; color: #e3f2fd; }
-    .header { background: var(--azul); padding: 20px 15px; text-align: center; border-radius: 0 0 20px 20px; }
-    .header h1 { font-size: 24px; }
-    .container { padding: 15px; max-width: 500px; margin: 0 auto; }
+   .header { background: var(--azul); padding: 20px 15px; text-align: center; }
+   .container { padding: 15px; max-width: 500px; margin: 0 auto; }
         #reader { width: 100%; margin: 15px auto; border-radius: 16px; overflow: hidden; border: 3px solid #1565c0; }
-   .card { background: #132f4c; padding: 20px; border-radius: 16px; margin-top: 16px; border: 1px solid #1e4976; word-break: break-all; }
-   .ativo { box-shadow: 0 0 0 3px var(--verde) inset; }
-   .bloqueado { box-shadow: 0 0 0 3px var(--vermelho) inset; }
-   .status { font-size: 28px; font-weight: 900; margin: 15px 0; text-align: center; }
-   .verde { color: #4caf50; }
-   .vermelho { color: #f44336; }
+  .card { background: #132f4c; padding: 20px; border-radius: 16px; margin-top: 16px; border: 1px solid #1e4976; }
+  .ativo { box-shadow: 0 0 0 3px var(--verde) inset; }
+  .bloqueado { box-shadow: 0 0 0 3px var(--vermelho) inset; }
+  .status { font-size: 28px; font-weight: 900; margin: 15px 0; text-align: center; }
+  .verde { color: #4caf50; }
+  .vermelho { color: #f44336; }
         button { width: 100%; padding: 16px; font-size: 16px; background: var(--azul); color: white; border: none; border-radius: 12px; margin-top: 12px; font-weight: 700; }
-   .btn-sec { background: #1e4976; }
-   .btn-group { display: flex; gap: 10px; }
-   .btn-group button { margin-top: 0; }
-   .resultado-texto { background: #0a1929; padding: 15px; border-radius: 10px; margin: 10px 0; font-family: monospace; }
-   .foto-cliente { width: 120px; height: 120px; border-radius: 60px; object-fit: cover; margin: 15px auto; display: block; border: 4px solid #1e4976; }
-   .info { font-size: 15px; line-height: 1.8; color: #bbdefb; }
-   .info strong { color: white; }
-   .camera-select { width: 100%; padding: 12px; background: #0a1929; border: 2px solid #1e4976; border-radius: 10px; color: white; font-size: 16px; margin-bottom: 10px; }
-   .modo-badge { background: #00c853; color: #000; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; display: inline-block; margin-top: 8px; }
+  .btn-sec { background: #1e4976; }
+  .info { font-size: 15px; line-height: 1.8; color: #bbdefb; }
+  .info strong { color: white; }
+  .badge-offline { background: #ff9800; color: #000; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>MILTON TECH</h1>
-        <p>Scanner Híbrido - Geral + PFS</p>
-    </div>
-
+    <div class="header"><h1>MILTON TECH</h1><p>Validador PFS</p></div>
     <div class="container">
-        <select id="cameraSelect" class="camera-select">
-            <option value="environment">Câmera Traseira</option>
-            <option value="user">Câmera Frontal</option>
-        </select>
-
         <div id="reader"></div>
-        <div id="resultado"><div class="card">Carregando base de dados PFS...</div></div>
-
-        <div class="btn-group">
-            <button onclick="iniciarLeitor()">📷 ESCANEAR</button>
-            <button class="btn-sec" onclick="pararLeitor()">⏹️ PARAR</button>
-        </div>
-
-        <button class="btn-sec" onclick="lerImagem()">🖼️ LER DE IMAGEM</button>
+        <div id="resultado"></div>
+        <button onclick="iniciarLeitor()">📷 ESCANEAR</button>
+        <button class="btn-sec" onclick="sincronizar()">🔄 SINCRONIZAR DADOS</button>
     </div>
 
 <script>
-// 1. COLA AQUI O LINK CSV DA TUA PLANILHA PFS
 const URL_PLANILHA_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQANUa7iBeRexdi51FuLHzPgG5LP5CgY8SKSXYWAvcNbL6Mu1UbieDsrDQlQRcc5UDPfkVv4ZHqOIfx/pub?output=csv";
-
 let html5QrCode, scannerRodando = false;
 let dadosPlanilha = [];
-const somBip = new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=");
 
-// CARREGA PLANILHA PFS
-async function carregarPlanilha() {
+// 1. CARREGA CACHE PRIMEIRO, DEPOIS TENTA ONLINE
+function carregarDados() {
+    const cache = localStorage.getItem('planilhaPFS');
+    const ultimaSync = localStorage.getItem('ultimaSync');
+
+    if(cache) {
+        dadosPlanilha = JSON.parse(cache);
+        document.getElementById("resultado").innerHTML = `
+            <div class="card">
+                <span class="badge-offline">MODO OFFLINE</span>
+                <p><strong>${dadosPlanilha.length} clientes carregados</strong></p>
+                <p><small>Última sync: ${ultimaSync || 'Nunca'}</small></p>
+                <p>Pronto pra escanear sem internet</p>
+            </div>`;
+    } else {
+        document.getElementById("resultado").innerHTML = `
+            <div class="card">
+                <h3>Primeira vez?</h3>
+                <p>Liga a internet e clica em "Sincronizar Dados"</p>
+            </div>`;
+    }
+}
+
+// 2. SINCRONIZA QUANDO TIVER NET
+async function sincronizar() {
+    document.getElementById("resultado").innerHTML = `<div class="card">Baixando dados...</div>`;
     try {
-        const cache = localStorage.getItem('planilhaPFS');
-        if(cache) dadosPlanilha = JSON.parse(cache);
         const resposta = await fetch(URL_PLANILHA_CSV);
+        if(!resposta.ok) throw new Error('Erro na planilha');
         const csv = await resposta.text();
         const linhas = csv.split("\n").slice(1);
         dadosPlanilha = linhas.filter(l => l.trim()).map(linha => {
             const col = linha.split(",");
             return {
-                nome: col[0]?.trim(),
-                codigo: col[1]?.trim(),
-                dataInicio: col[2]?.trim(), // NOVA COLUNA: DATA INICIAL
-                dataFim: col[3]?.trim(), // DATA FINAL
-                status: col[4]?.trim(),
-                foto: col[5]?.trim(),
-                telefone: col[6]?.trim()
+                nome: col[0]?.trim(), codigo: col[1]?.trim(),
+                dataInicio: col[2]?.trim(), dataFim: col[3]?.trim(),
+                status: col[4]?.trim(), foto: col[5]?.trim(), telefone: col[6]?.trim()
             };
         });
         localStorage.setItem('planilhaPFS', JSON.stringify(dadosPlanilha));
-        document.getElementById("resultado").innerHTML = `<div class="card">✅ Base PFS: ${dadosPlanilha.length} clientes<br>Pronto pra escanear QR Geral ou PFS</div>`;
+        localStorage.setItem('ultimaSync', new Date().toLocaleString('pt-AO'));
+        document.getElementById("resultado").innerHTML = `
+            <div class="card">
+                <h3>✅ Sincronizado</h3>
+                <p>${dadosPlanilha.length} clientes salvos no celular</p>
+                <p>Agora funciona offline</p>
+            </div>`;
     } catch (e) {
-        document.getElementById("resultado").innerHTML = `<div class="card">⚠️ Modo Geral Ativo<br>Base PFS offline. Só lendo QRs normais.</div>`;
+        document.getElementById("resultado").innerHTML = `
+            <div class="card">
+                <h3>❌ Sem Internet</h3>
+                <p>Não consegui baixar. Verifica a rede e tenta de novo.</p>
+            </div>`;
     }
 }
 
@@ -102,98 +108,46 @@ function verificarStatusPFS(dataFim) {
 }
 
 function mostrarResultado(texto) {
-    somBip.play();
-    if(navigator.vibrate) navigator.vibrate(200);
-
-    // 1. TENTA ACHAR NA PLANILHA PFS PRIMEIRO
     const cliente = dadosPlanilha.find(c => c.codigo === texto.trim());
-
     if (cliente) {
-        // MODO PFS: MOSTRA DADOS DA PLANILHA
         const status = verificarStatusPFS(cliente.dataFim);
         const classe = status === "ATIVO"? "ativo" : "bloqueado";
         const cor = status === "ATIVO"? "verde" : "vermelho";
-        const foto = cliente.foto? `<img src="${cliente.foto}" class="foto-cliente" onerror="this.src='https://i.imgur.com/u5M2L5y.png'">` : '';
-
         document.getElementById("resultado").innerHTML = `
             <div class="card ${classe}">
-                <div class="modo-badge">PLANO FAMÍLIA SÃ</div>
-                ${foto}
-                <h2 style="text-align:center; margin: 10px 0;">${cliente.nome}</h2>
+                <h2>${cliente.nome}</h2>
                 <div class="info">
                     <p><strong>Código:</strong> ${cliente.codigo}</p>
-                    <p><strong>Data Inicial:</strong> ${cliente.dataInicio || 'Não informado'}</p>
+                    <p><strong>Data Inicial:</strong> ${cliente.dataInicio || '-'}</p>
                     <p><strong>Data Final:</strong> ${cliente.dataFim}</p>
-                    <p><strong>Telefone:</strong> ${cliente.telefone || 'Não informado'}</p>
-                    <p><strong>Status Planilha:</strong> ${cliente.status}</p>
                 </div>
                 <p class="status ${cor}">${status}</p>
                 <button onclick="iniciarLeitor()">NOVA LEITURA</button>
-            </div>
-        `;
+            </div>`;
     } else {
-        // MODO GERAL: MOSTRA O TEXTO DO QR
-        let tipo = "Texto";
-        if(texto.startsWith('http')) tipo = "Link";
-        if(texto.startsWith('WIFI:')) tipo = "WiFi";
-        if(texto.includes('pix')) tipo = "PIX";
-
         document.getElementById("resultado").innerHTML = `
-            <div class="card">
-                <div class="modo-badge" style="background:#3b82f6;">QR GERAL</div>
-                <h3>Detectado: ${tipo}</h3>
-                <div class="resultado-texto">${texto}</div>
-                <button onclick="navigator.clipboard.writeText('${texto.replace(/'/g, "\\'")}')">📋 COPIAR</button>
-                ${texto.startsWith('http')? `<button class="btn-sec" onclick="window.open('${texto}', '_blank')">🌐 ABRIR LINK</button>` : ''}
-                <button class="btn-sec" onclick="iniciarLeitor()">NOVA LEITURA</button>
-            </div>
-        `;
+            <div class="card"><h3>Código não encontrado</h3><p>${texto}</p></div>`;
     }
 }
 
-function onScanSuccess(texto) {
-    pararLeitor();
-    mostrarResultado(texto);
-}
+function onScanSuccess(texto) { pararLeitor(); mostrarResultado(texto); }
 
 async function iniciarLeitor() {
     if(scannerRodando) await pararLeitor();
     document.getElementById("resultado").innerHTML = "";
     html5QrCode = new Html5Qrcode("reader");
-    const camera = document.getElementById('cameraSelect').value;
     try {
-        await html5QrCode.start(
-            { facingMode: camera },
-            { fps: 10, qrbox: {width: 280, height: 280} },
-            onScanSuccess
-        );
+        await html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, onScanSuccess);
         scannerRodando = true;
     } catch (err) {
-        document.getElementById("resultado").innerHTML = `<div class="card"><h3>Erro na câmera</h3></div>`;
+        document.getElementById("resultado").innerHTML = `<div class="card">Erro na câmera</div>`;
     }
 }
-
 async function pararLeitor() {
-    if(html5QrCode && scannerRodando) {
-        await html5QrCode.stop();
-        scannerRodando = false;
-    }
+    if(html5QrCode && scannerRodando) { await html5QrCode.stop(); scannerRodando = false; }
 }
 
-function lerImagem() {
-    const input = document.createElement("input");
-    input.type = "file"; input.accept = "image/*";
-    input.onchange = e => {
-        if (e.target.files.length == 0) return;
-        html5QrCode = new Html5Qrcode("reader");
-        html5QrCode.scanFile(e.target.files[0], true).then(onScanSuccess).catch(err => {
-            document.getElementById("resultado").innerHTML = `<div class="card"><h3>QR não encontrado</h3></div>`;
-        });
-    };
-    input.click();
-}
-
-carregarPlanilha();
+carregarDados(); // Carrega o cache assim que abre
 </script>
 </body>
-    </html>
+</html>
