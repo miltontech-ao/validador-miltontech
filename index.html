@@ -3,99 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MILTON TECH - Validador Offline</title>
+    <title>MILTON TECH - Validador PFS 5.1</title>
     <meta name="theme-color" content="#0d47a1">
-    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
-        :root { --azul: #0d47a1; --verde: #00c853; --vermelho: #d32f2f; }
+        :root { --azul: #0d47a1; --azul-escuro: #0a1929; --verde: #00c853; --vermelho: #d32f2f; --laranja: #ff9800; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Arial; background: #0a1929; color: #e3f2fd; }
-   .header { background: var(--azul); padding: 20px 15px; text-align: center; }
-   .container { padding: 15px; max-width: 500px; margin: 0 auto; }
-        #reader { width: 100%; margin: 15px auto; border-radius: 16px; overflow: hidden; border: 3px solid #1565c0; }
-  .card { background: #132f4c; padding: 20px; border-radius: 16px; margin-top: 16px; border: 1px solid #1e4976; }
-  .ativo { box-shadow: 0 0 0 3px var(--verde) inset; }
-  .bloqueado { box-shadow: 0 0 0 3px var(--vermelho) inset; }
-  .status { font-size: 28px; font-weight: 900; margin: 15px 0; text-align: center; }
-  .verde { color: #4caf50; }
-  .vermelho { color: #f44336; }
-        button { width: 100%; padding: 16px; font-size: 16px; background: var(--azul); color: white; border: none; border-radius: 12px; margin-top: 12px; font-weight: 700; }
-  .btn-sec { background: #1e4976; }
-  .info { font-size: 15px; line-height: 1.8; color: #bbdefb; }
-  .info strong { color: white; }
-  .badge-offline { background: #ff9800; color: #000; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--azul-escuro); color: #e3f2fd; }
+ .header { background: var(--azul); padding: 20px 15px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+ .header h1 { font-size: 22px; font-weight: 800; }
+ .header p { font-size: 14px; opacity: 0.9; margin-top: 4px; }
+ .container { padding: 15px; max-width: 500px; margin: 0 auto; }
+        #reader { width: 100%; margin: 15px auto; border-radius: 16px; overflow: hidden; border: 3px solid #1565c0; background: #000; }
+ .card { background: #132f4c; padding: 20px; border-radius: 16px; margin-top: 16px; border: 1px solid #1e4976; }
+ .ativo { box-shadow: 0 0 0 3px var(--verde) inset; }
+ .bloqueado { box-shadow: 0 0 0 3px var(--vermelho) inset; }
+ .status { font-size: 28px; font-weight: 900; margin: 15px 0; text-align: center; }
+ .verde { color: #4caf50; }
+ .vermelho { color: #f44336; }
+ .laranja { color: var(--laranja); }
+        button { width: 100%; padding: 16px; font-size: 16px; background: var(--azul); color: white; border: none; border-radius: 12px; margin-top: 12px; font-weight: 700; cursor: pointer; }
+ .btn-sec { background: #1e4976; }
+ .info { font-size: 15px; line-height: 1.8; color: #bbdefb; }
+ .info strong { color: white; }
+ .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; margin-bottom: 10px; }
+ .badge-offline { background: var(--laranja); color: #000; }
+ .badge-online { background: var(--verde); color: #000; }
+ .foto-cliente { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--azul); margin: 0 auto 15px; display: block; }
+ .footer { text-align: center; padding: 20px; font-size: 12px; opacity: 0.6; }
     </style>
 </head>
 <body>
-    <div class="header"><h1>MILTON TECH</h1><p>Validador PFS</p></div>
+    <div class="header">
+        <h1>MILTON TECH</h1>
+        <p>Validador PFS 5.1 - Modo Offline</p>
+    </div>
+
     <div class="container">
         <div id="reader"></div>
         <div id="resultado"></div>
-        <button onclick="iniciarLeitor()">📷 ESCANEAR</button>
+        <button onclick="iniciarLeitor()">📷 ESCANEAR QR CODE</button>
         <button class="btn-sec" onclick="sincronizar()">🔄 SINCRONIZAR DADOS</button>
     </div>
+
+    <div class="footer">MILTON TECH © 2026</div>
 
 <script>
 const URL_PLANILHA_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQANUa7iBeRexdi51FuLHzPgG5LP5CgY8SKSXYWAvcNbL6Mu1UbieDsrDQlQRcc5UDPfkVv4ZHqOIfx/pub?output=csv";
 let html5QrCode, scannerRodando = false;
 let dadosPlanilha = [];
 
-// 1. CARREGA CACHE PRIMEIRO, DEPOIS TENTA ONLINE
+// CARREGA DADOS DO CACHE OU ONLINE
 function carregarDados() {
     const cache = localStorage.getItem('planilhaPFS');
     const ultimaSync = localStorage.getItem('ultimaSync');
 
-    if(cache) {
+    if(cache && cache!== '[]') {
         dadosPlanilha = JSON.parse(cache);
         document.getElementById("resultado").innerHTML = `
             <div class="card">
-                <span class="badge-offline">MODO OFFLINE</span>
+                <span class="badge badge-offline">MODO OFFLINE</span>
                 <p><strong>${dadosPlanilha.length} clientes carregados</strong></p>
                 <p><small>Última sync: ${ultimaSync || 'Nunca'}</small></p>
-                <p>Pronto pra escanear sem internet</p>
+                <p>Pronto para escanear sem internet</p>
             </div>`;
     } else {
         document.getElementById("resultado").innerHTML = `
             <div class="card">
-                <h3>Primeira vez?</h3>
-                <p>Liga a internet e clica em "Sincronizar Dados"</p>
+                <h3>Primeira vez usando?</h3>
+                <p>Conecta na internet e clica em "Sincronizar Dados" para baixar os clientes.</p>
             </div>`;
     }
 }
 
-// 2. SINCRONIZA QUANDO TIVER NET
+// SINCRONIZA COM A PLANILHA
 async function sincronizar() {
-    document.getElementById("resultado").innerHTML = `<div class="card">Baixando dados...</div>`;
+    document.getElementById("resultado").innerHTML = `<div class="card">Conectando com servidor...</div>`;
     try {
         const resposta = await fetch(URL_PLANILHA_CSV);
-        if(!resposta.ok) throw new Error('Erro na planilha');
+        if(!resposta.ok) throw new Error('Planilha não encontrada');
         const csv = await resposta.text();
         const linhas = csv.split("\n").slice(1);
+
         dadosPlanilha = linhas.filter(l => l.trim()).map(linha => {
             const col = linha.split(",");
             return {
-                nome: col[0]?.trim(), codigo: col[1]?.trim(),
-                dataInicio: col[2]?.trim(), dataFim: col[3]?.trim(),
-                status: col[4]?.trim(), foto: col[5]?.trim(), telefone: col[6]?.trim()
+                nome: col[0]?.trim() || '',
+                codigo: col[1]?.trim() || '',
+                dataInicio: col[2]?.trim() || '',
+                dataFim: col[3]?.trim() || '',
+                status: col[4]?.trim() || '',
+                foto: col[5]?.trim() || '',
+                telefone: col[6]?.trim() || ''
             };
-        });
+        }).filter(c => c.codigo);
+
         localStorage.setItem('planilhaPFS', JSON.stringify(dadosPlanilha));
         localStorage.setItem('ultimaSync', new Date().toLocaleString('pt-AO'));
+
         document.getElementById("resultado").innerHTML = `
             <div class="card">
-                <h3>✅ Sincronizado</h3>
-                <p>${dadosPlanilha.length} clientes salvos no celular</p>
-                <p>Agora funciona offline</p>
+                <span class="badge badge-online">SINCRONIZADO</span>
+                <h3>✅ ${dadosPlanilha.length} clientes salvos</h3>
+                <p>Agora o app funciona mesmo sem internet</p>
             </div>`;
     } catch (e) {
         document.getElementById("resultado").innerHTML = `
             <div class="card">
-                <h3>❌ Sem Internet</h3>
-                <p>Não consegui baixar. Verifica a rede e tenta de novo.</p>
+                <h3 class="vermelho">❌ Falha na sincronização</h3>
+                <p>Verifica se:</p>
+                <p>1. Tens internet</p>
+                <p>2. A planilha está publicada em CSV</p>
+                <p>3. O link está correto</p>
             </div>`;
     }
 }
 
+// VERIFICA SE ESTÁ VENCIDO
 function verificarStatusPFS(dataFim) {
     if(!dataFim) return "BLOQUEADO";
     try {
@@ -107,47 +131,73 @@ function verificarStatusPFS(dataFim) {
     } catch { return "BLOQUEADO"; }
 }
 
+// MOSTRA RESULTADO DO QR
 function mostrarResultado(texto) {
-    const cliente = dadosPlanilha.find(c => c.codigo === texto.trim());
+    const codigo = texto.trim();
+    const cliente = dadosPlanilha.find(c => c.codigo === codigo);
+
     if (cliente) {
         const status = verificarStatusPFS(cliente.dataFim);
         const classe = status === "ATIVO"? "ativo" : "bloqueado";
         const cor = status === "ATIVO"? "verde" : "vermelho";
+        const foto = cliente.foto? `<img src="${cliente.foto}" class="foto-cliente" onerror="this.style.display='none'">` : '';
+
         document.getElementById("resultado").innerHTML = `
             <div class="card ${classe}">
+                ${foto}
                 <h2>${cliente.nome}</h2>
                 <div class="info">
                     <p><strong>Código:</strong> ${cliente.codigo}</p>
                     <p><strong>Data Inicial:</strong> ${cliente.dataInicio || '-'}</p>
-                    <p><strong>Data Final:</strong> ${cliente.dataFim}</p>
+                    <p><strong>Data Final:</strong> ${cliente.dataFim || '-'}</p>
+                    <p><strong>Telefone:</strong> ${cliente.telefone || '-'}</p>
                 </div>
                 <p class="status ${cor}">${status}</p>
                 <button onclick="iniciarLeitor()">NOVA LEITURA</button>
             </div>`;
     } else {
         document.getElementById("resultado").innerHTML = `
-            <div class="card"><h3>Código não encontrado</h3><p>${texto}</p></div>`;
+            <div class="card">
+                <h3 class="laranja">⚠️ Código não encontrado</h3>
+                <p><strong>QR lido:</strong> ${codigo}</p>
+                <p>Este código não está na base de dados.</p>
+                <p><small>Clientes carregados: ${dadosPlanilha.length}</small></p>
+                <button onclick="iniciarLeitor()">TENTAR DE NOVO</button>
+            </div>`;
     }
 }
 
-function onScanSuccess(texto) { pararLeitor(); mostrarResultado(texto); }
+// SCANNER QR
+function onScanSuccess(texto) {
+    pararLeitor();
+    mostrarResultado(texto);
+}
 
 async function iniciarLeitor() {
     if(scannerRodando) await pararLeitor();
     document.getElementById("resultado").innerHTML = "";
     html5QrCode = new Html5Qrcode("reader");
     try {
-        await html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, onScanSuccess);
+        await html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            onScanSuccess
+        );
         scannerRodando = true;
     } catch (err) {
-        document.getElementById("resultado").innerHTML = `<div class="card">Erro na câmera</div>`;
+        document.getElementById("resultado").innerHTML = `<div class="card"><h3>Erro na câmera</h3><p>Permite o acesso à câmera nas configurações.</p></div>`;
     }
 }
+
 async function pararLeitor() {
-    if(html5QrCode && scannerRodando) { await html5QrCode.stop(); scannerRodando = false; }
+    if(html5QrCode && scannerRodando) {
+        await html5QrCode.stop();
+        scannerRodando = false;
+    }
 }
 
-carregarDados(); // Carrega o cache assim que abre
+// INICIA APP
+carregarDados();
 </script>
 </body>
 </html>
