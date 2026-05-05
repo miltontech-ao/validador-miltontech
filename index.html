@@ -4,40 +4,70 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0d47a1">
-    <title>Milton Tech - Validador PFS 5.4</title>
+    <title>Milton Tech - Validador PFS 6.7</title>
     <link rel="manifest" href="./manifest.json">
     <link rel="icon" href="./icon-192.png" type="image/png">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #0a1929; color: white; min-height: 100vh; display: flex; flex-direction: column; }
-     .header { background: #0d47a1; padding: 20px; text-align: center; }
-     .header img { width: 80px; height: 80px; display: block; margin: 0 auto 10px; object-fit: contain; }
-     .header h1 { font-size: 28px; }
-     .content { flex: 1; padding: 20px; display: none; }
-     .content.active { display: block; }
+        body { font-family: Arial, sans-serif; color: white; min-height: 100vh; display: flex; flex-direction: column; position: relative; overflow-x: hidden; }
+        #bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: linear-gradient(135deg, #0a1929 0%, #0d1b2a 50%, #0a1929 100%); }
+    .header { background: rgba(13, 71, 161, 0.85); backdrop-filter: blur(10px); padding: 20px; text-align: center; position: relative; z-index: 10; }
+    .header img { width: 80px; height: 80px; display: block; margin: 0 auto 10px; object-fit: contain; }
+    .header h1 { font-size: 28px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+    .btn-top { position: absolute; top: 15px; padding: 8px 12px; font-size: 18px; }
+    .btn-voz { right: 15px; background: #388e3c; }
+    .btn-sonia { right: 65px; background: #9c27b0; }
+    .btn-mudo { background: #666; }
+    .content { flex: 1; padding: 20px; display: none; padding-bottom: 80px; position: relative; z-index: 5; }
+    .content.active { display: block; }
         #scanner { width: 100%; max-width: 400px; height: 300px; margin: 20px auto; background: #000; border-radius: 8px; }
-        button { background: #1976d2; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 8px; margin: 5px; }
-        button.delete { background: #d32f2f; padding: 8px 12px; font-size: 12px; }
-     .nav { display: flex; background: #0d1b2a; border-top: 1px solid #1e3a5f; }
-     .nav-item { flex: 1; padding: 12px 5px; text-align: center; font-size: 11px; color: #90a4ae; cursor: pointer; }
-     .nav-item.active { color: #42a5f5; }
-     .lista-item { background: #1e3a5f; padding: 15px; margin: 10px 0; border-radius: 8px; text-align: left; position: relative; }
-     .resultado { color: #42a5f5; margin: 15px 0; font-size: 14px; text-align: center; }
-      input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: none; background: #1e3a5f; color: white; font-size: 16px; }
-     .form-box { background: #0d1b2a; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        button { background: #1976d2; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 8px; margin: 5px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+        button.small { padding: 8px 12px; font-size: 12px; }
+        button.delete { background: #d32f2f; }
+        button.qr { background: #388e3c; }
+        button.edit { background: #ff9800; }
+    .nav { display: flex; background: rgba(13, 27, 42, 0.95); backdrop-filter: blur(10px); border-top: 1px solid #1e3a5f; position: fixed; bottom: 0; width: 100%; z-index: 10; }
+    .nav-item { flex: 1; padding: 12px 5px; text-align: center; font-size: 11px; color: #90a4ae; cursor: pointer; }
+    .nav-item.active { color: #42a5f5; }
+    .lista-item { background: rgba(30, 58, 95, 0.8); backdrop-filter: blur(5px); padding: 15px; margin: 10px 0; border-radius: 8px; text-align: left; position: relative; }
+    .status-valid { border-left: 4px solid #4caf50; }
+    .status-exp { border-left: 4px solid #f44336; }
+    .status-pend { border-left: 4px solid #ff9800; }
+    .resultado { color: #42a5f5; margin: 15px 0; font-size: 14px; text-align: center; min-height: 20px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: none; background: rgba(30, 58, 95, 0.8); color: white; font-size: 16px; }
+    .form-box { background: rgba(13, 27, 42, 0.8); backdrop-filter: blur(5px); padding: 15px; border-radius: 8px; margin: 15px 0; }
+    .label { font-size: 12px; opacity: 0.8; margin-top: 10px; }
+    .row { display: flex; gap: 10px; }
+    .row > * { flex: 1; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 999; align-items: center; justify-content: center; }
+    .modal-content { background: #0d1b2a; padding: 20px; border-radius: 8px; text-align: center; max-width: 90%; width: 90%; max-height: 80vh; display: flex; flex-direction: column; }
+        #qrcode { background: white; padding: 15px; border-radius: 8px; margin: 15px auto; display: inline-block; }
+    .btn-group { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+    .alerta-vencimento { background: rgba(255, 152, 0, 0.9); backdrop-filter: blur(5px); padding: 10px; border-radius: 8px; margin: 10px 0; font-size: 14px; }
+      #chatSonia { flex: 1; overflow-y: auto; text-align: left; margin: 15px 0; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; }
+    .msg-sonia { background: rgba(156, 39, 176, 0.3); padding: 10px; border-radius: 8px; margin: 8px 0; }
+    .msg-user { background: rgba(25, 118, 210, 0.3); padding: 10px; border-radius: 8px; margin: 8px 0; text-align: right; }
+    .chat-input { display: flex; gap: 10px; }
+    .chat-input input { flex: 1; margin: 0; }
     </style>
 </head>
 <body>
+    <canvas id="bg-canvas"></canvas>
+
     <div class="header">
+        <button class="btn-top btn-sonia" onclick="abrirSonia()">🤖</button>
+        <button class="btn-top btn-voz" id="btnVoz" onclick="alternarVoz()">🔊</button>
         <img src="./icon-512.png" alt="Logo Milton Tech">
         <h1>MILTON TECH</h1>
-        <p>Validador PFS 5.4 - Lista Direta</p>
+        <p>Validador PFS 6.7 - Com Sônia IA</p>
     </div>
 
     <div class="content active" id="home" style="text-align: center;">
-        <h2>Bem-vindo</h2>
-        <p>Sistema offline pronto para validar cartões PFS.</p>
-        <p>Total de clientes: <span id="totalClientes">0</span></p>
+        <h2>Bem-vindo, Milton</h2>
+        <div id="alertaVencimento"></div>
+        <p>Total: <span id="totalClientes">0</span> | Válidos: <span id="totalValidos">0</span> | Expirados: <span id="totalExpirados">0</span></p>
+        <button onclick="lerResumo()">🔊 Ler Resumo do Dia</button>
+        <button onclick="abrirSonia()">💬 Falar com Sônia</button>
         <button onclick="trocarAba('scanner')">Abrir Scanner</button>
     </div>
 
@@ -54,20 +84,31 @@
     </div>
 
     <div class="content" id="admin">
-        <h2>Cadastrar Cliente</h2>
+        <h2 id="tituloForm">Cadastrar Cliente</h2>
         <div class="form-box">
+            <input type="hidden" id="editandoIndex" value="">
             <input type="text" id="nomeCliente" placeholder="Nome do cliente">
-            <input type="text" id="codigoCliente" placeholder="Código PFS / QR">
-            <select id="statusCliente">
-                <option value="✅ Válido">✅ Válido</option>
-                <option value="❌ Expirado">❌ Expirado</option>
-                <option value="❌ Bloqueado">❌ Bloqueado</option>
-                <option value="⏳ Pendente">⏳ Pendente</option>
-            </select>
-            <button onclick="adicionarCliente()">Salvar Cliente</button>
+            <div class="row">
+                <input type="text" id="codigoCliente" placeholder="Código PFS / QR">
+                <button onclick="gerarCodigo()" class="small" style="margin: 8px 0;">Gerar</button>
+            </div>
+            <div class="label">Data Início:</div>
+            <input type="date" id="dataInicio">
+            <div class="label">Data Fim:</div>
+            <input type="date" id="dataFim">
+            <button onclick="salvarCliente()" id="btnSalvar">Salvar Cliente</button>
+            <button onclick="cancelarEdicao()" id="btnCancelar" style="background:#666;display:none;">Cancelar</button>
         </div>
+
+        <h3>Importar da Planilha</h3>
+        <div class="form-box">
+            <div class="label">Cola do Excel: Nome[TAB]Codigo[TAB]DataInicio[TAB]DataFim</div>
+            <textarea id="textoImportar" rows="4" placeholder="Francisco	M-2026-05-001	2026-05-01	2026-05-31"></textarea>
+            <button onclick="importarPlanilha()">Importar Tudo</button>
+        </div>
+
         <button onclick="exportarClientes()">Exportar Lista</button>
-        <button onclick="limparTodos()" style="background: #d32f2f;">Apagar Tudo</button>
+        <button onclick="limparTodos()" class="delete">Apagar Tudo</button>
     </div>
 
     <div class="nav">
@@ -77,137 +118,257 @@
         <div class="nav-item" onclick="trocarAba('admin')">➕<br>Cadastrar</div>
     </div>
 
+    <div class="modal" id="modalQR" onclick="fecharQR()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3 id="nomeQR"></h3>
+            <div id="qrcode"></div>
+            <p id="codigoQR" style="font-size:12px;opacity:0.8;"></p>
+            <button onclick="fecharQR()">Fechar</button>
+        </div>
+    </div>
+
+    <div class="modal" id="modalSonia" onclick="fecharSonia()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3>🤖 Sônia - Tua Assistente</h3>
+            <div id="chatSonia">
+                <div class="msg-sonia">Olá Milton! Sou a Sônia 💜 Em que posso ajudar hoje?</div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="perguntaSonia" placeholder="Pergunta algo, Milton..." onkeypress="if(event.key==='Enter')perguntarSonia()">
+                <button onclick="perguntarSonia()">Enviar</button>
+            </div>
+            <button onclick="fecharSonia()" style="margin-top:10px;">Fechar</button>
+        </div>
+    </div>
+
     <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <script>
+        // FUNDO ANIMADO SAÚDE
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const particulas = [];
+        const icones = ['❤️', '⚕️', '🧬', '💊', '+'];
+
+        class Particula {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 20 + 10;
+                this.speedY = Math.random() * 0.5 + 0.2;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.icon = icones[Math.floor(Math.random() * icones.length)];
+                this.opacity = Math.random() * 0.3 + 0.1;
+            }
+            update() {
+                this.y -= this.speedY;
+                this.x += this.speedX;
+                if (this.y < -50) {
+                    this.y = canvas.height + 50;
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+            draw() {
+                ctx.globalAlpha = this.opacity;
+                ctx.font = `${this.size}px Arial`;
+                ctx.fillText(this.icon, this.x, this.y);
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        function initParticulas() {
+            for (let i = 0; i < 25; i++) particulas.push(new Particula());
+        }
+
+        function animarFundo() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particulas.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animarFundo);
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        initParticulas();
+        animarFundo();
+
+        // APP
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./sw.js');
         }
 
-        // CARREGA CLIENTES SALVOS NO CELULAR
         let clientes = JSON.parse(localStorage.getItem('clientesMilton')) || [];
+        let vozAtivada = JSON.parse(localStorage.getItem('vozAtivada'))!== false;
 
         window.addEventListener('load', () => {
             renderizarLista();
+            atualizarBotaoVoz();
+            verificarVencimentos();
             const aba = new URLSearchParams(window.location.search).get('aba');
             if (aba) trocarAba(aba);
+            document.getElementById('dataInicio').valueAsDate = new Date();
         });
+
+        function falar(texto) {
+            if (!vozAtivada ||!window.speechSynthesis) return;
+            speechSynthesis.cancel();
+            const msg = new SpeechSynthesisUtterance(texto);
+            msg.lang = 'pt-BR';
+            msg.rate = 1.1;
+            msg.pitch = 1;
+            speechSynthesis.speak(msg);
+        }
+
+        function alternarVoz() {
+            vozAtivada =!vozAtivada;
+            localStorage.setItem('vozAtivada', JSON.stringify(vozAtivada));
+            atualizarBotaoVoz();
+            falar(vozAtivada? 'Voz ativada, Milton' : 'Voz desativada, Milton');
+        }
+
+        function atualizarBotaoVoz() {
+            const btn = document.getElementById('btnVoz');
+            btn.innerText = vozAtivada? '🔊' : '🔇';
+            btn.className = vozAtivada? 'btn-top btn-voz' : 'btn-top btn-voz btn-mudo';
+        }
+
+        function lerResumo() {
+            const total = clientes.length;
+            const validos = clientes.filter(c => calcularStatus(c.dataInicio, c.dataFim) === '✅ Válido').length;
+            const expirados = clientes.filter(c => calcularStatus(c.dataInicio, c.dataFim).includes('Expirado')).length;
+            const vencendo = clientesVencendo7Dias().length;
+            falar(`Bom dia Milton. Tu tem ${total} clientes. ${validos} estão válidos. ${expirados} expiraram. ${vencendo} vencem esta semana.`);
+        }
+
+        // SÔNIA
+        function abrirSonia() {
+            document.getElementById('modalSonia').style.display = 'flex';
+            document.getElementById('perguntaSonia').focus();
+        }
+
+        function fecharSonia() {
+            document.getElementById('modalSonia').style.display = 'none';
+        }
+
+        function perguntarSonia() {
+            const input = document.getElementById('perguntaSonia');
+            const pergunta = input.value.trim();
+            if (!pergunta) return;
+            const chat = document.getElementById('chatSonia');
+            chat.innerHTML += `<div class="msg-user">${pergunta}</div>`;
+            input.value = '';
+            chat.scrollTop = chat.scrollHeight;
+            setTimeout(() => {
+                const resposta = responderSonia(pergunta);
+                chat.innerHTML += `<div class="msg-sonia">${resposta}</div>`;
+                chat.scrollTop = chat.scrollHeight;
+                falar(resposta.replace(/<[^>]*>/g, ''));
+            }, 500);
+        }
+
+        function responderSonia(pergunta) {
+            const p = pergunta.toLowerCase();
+            const total = clientes.length;
+            const validos = clientes.filter(c => calcularStatus(c.dataInicio, c.dataFim) === '✅ Válido').length;
+            const expirados = clientes.filter(c => calcularStatus(c.dataInicio, c.dataFim).includes('Expirado')).length;
+            const vencendo = clientesVencendo7Dias();
+
+            if (p.includes('quantos clientes') || p.includes('total')) return `Milton, tu tem ${total} clientes cadastrados. ${validos} estão válidos e ${expirados} expirados.`;
+            if (p.includes('vencendo') || p.includes('vencer') || p.includes('esta semana')) {
+                if (vencendo.length === 0) return `Boa notícia, Milton! Nenhum cliente vence esta semana 💚`;
+                return `Milton, ${vencendo.length} clientes vencem esta semana: ${vencendo.map(c => c.nome).join(', ')}. Quer que eu te ajude a cobrar?`;
+            }
+            if (p.includes('expirado') || p.includes('vencido')) {
+                if (expirados === 0) return `Perfeito, Milton! Nenhum cliente expirado 🎉`;
+                return `Milton, tu tem ${expirados} clientes expirados. Quer renovar algum?`;
+            }
+            if (p.includes('renovar') || p.includes('renovação')) return `Pra renovar, Milton: vai na lista de clientes, clica em Editar ou +30 dias no cliente que queres. O QR dele continua o mesmo!`;
+            if (p.includes('como cadastrar') || p.includes('adicionar cliente')) return `Fácil, Milton! Vai em Cadastrar, preenche nome e clica em Gerar pra criar o código. Depois põe as datas e Salvar.`;
+            if (p.includes('exportar') || p.includes('excel')) return `Milton, na aba Cadastrar tem botão Exportar Lista. Ele copia tudo pra tu colar no Excel!`;
+            if (p.includes('voz') || p.includes('falar')) return `A voz tá ${vozAtivada? 'ativada' : 'desativada'}, Milton. Clica no 🔊 no topo pra ligar ou desligar.`;
+            if (p.includes('obrigado') || p.includes('valeu')) return `De nada, Milton! Tô aqui pra te ajudar sempre 💜`;
+            if (p.includes('quem é você') || p.includes('quem e voce')) return `Sou a Sônia, tua assistente pessoal, Milton! Tô aqui pra te ajudar com os clientes e com o app.`;
+            if (p.includes('olá') || p.includes('oi') || p.includes('bom dia') || p.includes('boa tarde')) return `Olá Milton! Como posso te ajudar hoje?`;
+            return `Entendi, Milton. Sobre "${pergunta}": eu posso te ajudar com cadastro de clientes, renovação, ver quem venceu, exportar lista e usar o scanner. Me pergunta algo específico que te explico!`;
+        }
+
+        // FUNÇÕES BASE
+        function calcularStatus(dataInicio, dataFim) {
+            const hoje = new Date().toISOString().split('T')[0];
+            if (hoje < dataInicio) return '⏳ Pendente';
+            if (hoje > dataFim) return '❌ Expirado';
+            return '✅ Válido';
+        }
+
+        function clientesVencendo7Dias() {
+            const hoje = new Date();
+            const daqui7dias = new Date();
+            daqui7dias.setDate(hoje.getDate() + 7);
+            return clientes.filter(c => {
+                const dataFim = new Date(c.dataFim);
+                return dataFim >= hoje && dataFim <= daqui7dias && calcularStatus(c.dataInicio, c.dataFim) === '✅ Válido';
+            });
+        }
+
+        function verificarVencimentos() {
+            const vencendo = clientesVencendo7Dias();
+            const div = document.getElementById('alertaVencimento');
+            if (vencendo.length > 0) {
+                div.innerHTML = `<div class="alerta-vencimento">⚠️ ${vencendo.length} clientes vencem esta semana</div>`;
+            } else {
+                div.innerHTML = '';
+            }
+        }
+
+        function gerarCodigo() {
+            const hoje = new Date();
+            const ano = hoje.getFullYear();
+            const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+            const num = String(clientes.length + 1).padStart(3, '0');
+            document.getElementById('codigoCliente').value = `M-${ano}-${mes}-${num}`;
+        }
 
         function trocarAba(nomeAba) {
             document.querySelectorAll('.content').forEach(div => div.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-
             const idAba = nomeAba === 'scanner'? 'scanner-tab' : nomeAba;
             document.getElementById(idAba).classList.add('active');
-
             const botoes = ['home','scanner','clientes','admin'];
             const index = botoes.indexOf(nomeAba);
             if (index >= 0) document.querySelectorAll('.nav-item')[index].classList.add('active');
-
             if (nomeAba === 'scanner') iniciarScanner();
-            if (nomeAba === 'home' || nomeAba === 'clientes') renderizarLista();
+            if (nomeAba === 'home' || nomeAba === 'clientes') {
+                renderizarLista();
+                verificarVencimentos();
+            }
         }
 
         function renderizarLista() {
             const lista = document.getElementById('listaClientes');
-            document.getElementById('totalClientes').innerText = clientes.length;
-
+            let validos = 0, expirados = 0;
             if (clientes.length === 0) {
-                lista.innerHTML = '<p style="text-align:center;opacity:0.7;">Nenhum cliente cadastrado.<br>Vá em "Cadastrar" pra adicionar.</p>';
+                lista.innerHTML = '<p style="text-align:center;opacity:0.7;">Nenhum cliente cadastrado.</p>';
+                document.getElementById('totalClientes').innerText = 0;
+                document.getElementById('totalValidos').innerText = 0;
+                document.getElementById('totalExpirados').innerText = 0;
                 return;
             }
-
-            lista.innerHTML = clientes.map((c, i) => `
-                <div class="lista-item" id="cliente-${c.codigo}">
+            lista.innerHTML = clientes.map((c, i) => {
+                const status = calcularStatus(c.dataInicio, c.dataFim);
+                if (status === '✅ Válido') validos++;
+                if (status.includes('Expirado')) expirados++;
+                let classe = 'status-valid';
+                if (status.includes('Expirado')) classe = 'status-exp';
+                if (status.includes('Pendente')) classe = 'status-pend';
+                return `
+                <div class="lista-item ${classe}" id="cliente-${c.codigo}">
                     <strong>${c.nome}</strong><br>
                     Código: ${c.codigo}<br>
-                    Status: ${c.status}
-                    <button class="delete" onclick="removerCliente(${i})" style="position:absolute;top:10px;right:10px;">X</button>
-                </div>
-            `).join('');
-        }
-
-        function adicionarCliente() {
-            const nome = document.getElementById('nomeCliente').value.trim();
-            const codigo = document.getElementById('codigoCliente').value.trim();
-            const status = document.getElementById('statusCliente').value;
-
-            if (!nome ||!codigo) {
-                alert('Preenche nome e código!');
-                return;
-            }
-
-            // Evita duplicado
-            if (clientes.find(c => c.codigo === codigo)) {
-                alert('Código já cadastrado!');
-                return;
-            }
-
-            clientes.push({ nome, codigo, status });
-            localStorage.setItem('clientesMilton', JSON.stringify(clientes));
-
-            document.getElementById('nomeCliente').value = '';
-            document.getElementById('codigoCliente').value = '';
-            alert('Cliente salvo!');
-            renderizarLista();
-        }
-
-        function removerCliente(index) {
-            if (confirm('Apagar esse cliente?')) {
-                clientes.splice(index, 1);
-                localStorage.setItem('clientesMilton', JSON.stringify(clientes));
-                renderizarLista();
-            }
-        }
-
-        function limparTodos() {
-            if (confirm('APAGAR TODOS OS CLIENTES? Não tem volta!')) {
-                clientes = [];
-                localStorage.removeItem('clientesMilton');
-                renderizarLista();
-            }
-        }
-
-        function exportarClientes() {
-            const texto = clientes.map(c => `${c.nome} - ${c.codigo} - ${c.status}`).join('\n');
-            navigator.clipboard.writeText(texto);
-            alert('Lista copiada! Cola no WhatsApp ou bloco de notas.');
-        }
-
-        let html5QrcodeScanner;
-        function iniciarScanner() {
-            document.getElementById('resultado').innerText = 'Aponte para o QR Code...';
-            if (html5QrcodeScanner) html5QrcodeScanner.clear();
-            html5QrcodeScanner = new Html5QrcodeScanner("scanner", { fps: 10, qrbox: 250 }, false);
-            html5QrcodeScanner.render(onScanSuccess, () => {});
-        }
-
-        function onScanSuccess(decodedText) {
-            html5QrcodeScanner.clear();
-            let codigo = decodedText;
-            if (decodedText.includes('qrco.de/')) codigo = decodedText.split('qrco.de/')[1];
-            if (decodedText.includes('codigo=')) codigo = new URL(decodedText).searchParams.get('codigo');
-
-            buscarCliente(codigo);
-        }
-
-        function buscarCliente(codigo) {
-            trocarAba('clientes');
-            setTimeout(() => {
-                document.querySelectorAll('.lista-item').forEach(item => {
-                    item.style.border = 'none';
-                    item.style.background = '#1e3a5f';
-                });
-                const cliente = clientes.find(c => c.codigo === codigo);
-                const elemento = document.getElementById('cliente-' + codigo);
-                if (elemento) {
-                    elemento.style.border = '3px solid #4caf50';
-                    elemento.style.background = '#2e7d32';
-                    elemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                } else {
-                    alert(`Cliente ${codigo} não encontrado. Cadastra ele na aba "Cadastrar".`);
-                }
-            }, 300);
-        }
-    </script>
-</body>
-    </html>
+                    Validade: ${c.dataInicio} até ${c.dataFim}<br>
+                    Status: ${status}
+                    <div class="btn-group">
+                        <button class="small qr" oncl
