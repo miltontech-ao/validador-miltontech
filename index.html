@@ -13,83 +13,70 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--azul-escuro); color: #e3f2fd; padding-bottom: 70px; }
 
-        /* HEADER CORRIGIDO - CENTRALIZADO + LOGO */
-       .header {
+        /* HEADER CENTRALIZADO + LOGO */
+      .header {
             background: var(--azul);
-            padding: 25px 15px 20px 15px; /* Aumentei o top pra descer da barra */
+            padding: 25px 15px 20px 15px;
             text-align: center;
         }
-       .header img {
+      .header img {
             width: 65px;
             height: 65px;
             border-radius: 14px;
             margin-bottom: 10px;
         }
-       .header h1 {
+      .header h1 {
             font-size: 24px;
             font-weight: 800;
             letter-spacing: 0.5px;
             margin: 0;
         }
-       .header p {
+      .header p {
             font-size: 14px;
             opacity: 0.9;
             margin-top: 5px;
         }
 
-       .container { padding: 15px; max-width: 500px; margin: 0 auto; }
-
-        /* BANNER */
-       .banner { background: linear-gradient(135deg, #1565c0, #0d47a1); padding: 20px; border-radius: 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; cursor: pointer; }
-       .banner-img { font-size: 40px; }
-       .banner-text h2 { font-size: 18px; margin-bottom: 8px; }
-       .btn-banner { background: white; color: var(--azul); padding: 8px 16px; border-radius: 20px; font-weight: 700; border: none; font-size: 14px; }
-
-        /* GRID */
-       .grid-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
-       .grid-item { background: #132f4c; padding: 15px 8px; border-radius: 12px; text-align: center; border: 1px solid #1e4976; cursor: pointer; }
-       .grid-item:active { background: #1e4976; }
-       .grid-icon { font-size: 28px; margin-bottom: 8px; display: block; }
-       .grid-item p { font-size: 12px; line-height: 1.2; }
-
-        /* CARDS */
-       .card-grande { background: #132f4c; padding: 16px; border-radius: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 15px; border: 1px solid #1e4976; position: relative; cursor: pointer; }
-       .card-grande-icon { font-size: 32px; }
-       .card-grande h3 { font-size: 16px; margin-bottom: 4px; }
-       .card-grande p { font-size: 13px; opacity: 0.8; }
-       .tag-novo { position: absolute; top: 10px; right: 10px; background: var(--vermelho); color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 800; }
-
-        /* SCANNER + RESULTADO */
+      .container { padding: 15px; max-width: 500px; margin: 0 auto; }
+      .banner { background: linear-gradient(135deg, #1565c0, #0d47a1); padding: 20px; border-radius: 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; cursor: pointer; }
+      .banner-img { font-size: 40px; }
+      .banner-text h2 { font-size: 18px; margin-bottom: 8px; }
+      .btn-banner { background: white; color: var(--azul); padding: 8px 16px; border-radius: 20px; font-weight: 700; border: none; font-size: 14px; }
+      .grid-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+      .grid-item { background: #132f4c; padding: 15px 8px; border-radius: 12px; text-align: center; border: 1px solid #1e4976; cursor: pointer; }
+      .grid-item:active { background: #1e4976; }
+      .grid-icon { font-size: 28px; margin-bottom: 8px; display: block; }
+      .grid-item p { font-size: 12px; line-height: 1.2; }
+      .card-grande { background: #132f4c; padding: 16px; border-radius: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 15px; border: 1px solid #1e4976; position: relative; cursor: pointer; }
+      .card-grande-icon { font-size: 32px; }
+      .card-grande h3 { font-size: 16px; margin-bottom: 4px; }
+      .card-grande p { font-size: 13px; opacity: 0.8; }
         #reader { width: 100%; margin: 15px auto; border-radius: 16px; overflow: hidden; border: 3px solid #1565c0; background: #000; }
-       .card { background: #132f4c; padding: 20px; border-radius: 16px; margin-top: 16px; border: 1px solid #1e4976; }
-       .ativo { box-shadow: 0 0 0 3px var(--verde) inset; }
-       .bloqueado { box-shadow: 0 0 0 3px var(--vermelho) inset; }
-       .status { font-size: 28px; font-weight: 900; margin: 15px 0; text-align: center; }
-       .verde { color: #4caf50; }
-       .vermelho { color: #f44336; }
-       .laranja { color: #ff9800; }
+      .card { background: #132f4c; padding: 20px; border-radius: 16px; margin-top: 16px; border: 1px solid #1e4976; }
+      .ativo { box-shadow: 0 0 0 3px var(--verde) inset; }
+      .bloqueado { box-shadow: 0 0 0 3px var(--vermelho) inset; }
+      .status { font-size: 28px; font-weight: 900; margin: 15px 0; text-align: center; }
+      .verde { color: #4caf50; }
+      .vermelho { color: #f44336; }
+      .laranja { color: #ff9800; }
         button { width: 100%; padding: 16px; font-size: 16px; background: var(--azul); color: white; border: none; border-radius: 12px; margin-top: 12px; font-weight: 700; cursor: pointer; }
-       .btn-sec { background: #1e4976; }
-       .btn-danger { background: #b71c1c; }
-       .info { font-size: 15px; line-height: 1.8; color: #bbdefb; }
-       .info strong { color: white; }
-       .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; margin-bottom: 10px; }
-       .badge-offline { background: var(--laranja); color: #000; }
-       .badge-online { background: var(--verde); color: #000; }
-       .foto-cliente { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--azul); margin: 0 auto 15px; display: block; }
-       .tela { display: none; }
-       .tela-ativa { display: block; }
+      .btn-sec { background: #1e4976; }
+      .btn-danger { background: #b71c1c; }
+      .info { font-size: 15px; line-height: 1.8; color: #bbdefb; }
+      .info strong { color: white; }
+      .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; margin-bottom: 10px; }
+      .badge-online { background: var(--verde); color: #000; }
+      .foto-cliente { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--azul); margin: 0 auto 15px; display: block; }
+      .tela { display: none; }
+      .tela-ativa { display: block; }
         #file-input { display: none; }
-
-        /* MENU INFERIOR */
-       .footer-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0a1929; display: flex; border-top: 1px solid #1e4976; }
-       .nav-item { flex: 1; text-align: center; padding: 12px; font-size: 11px; cursor: pointer; }
-       .nav-item.ativo { color: var(--azul); }
-       .nav-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+      .footer-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0a1929; display: flex; border-top: 1px solid #1e4976; }
+      .nav-item { flex: 1; text-align: center; padding: 12px; font-size: 11px; cursor: pointer; }
+      .nav-item.ativo { color: var(--azul); }
+      .nav-icon { font-size: 20px; display: block; margin-bottom: 4px; }
     </style>
 </head>
 <body>
-    <!-- HEADER COM LOGO CENTRALIZADO - ATUALIZADO -->
     <div class="header">
         <img src="icon-512.png" alt="Logo Milton Tech">
         <h1>MILTON TECH</h1>
@@ -97,7 +84,6 @@
     </div>
 
     <div class="container">
-        <!-- TELA HOME -->
         <div id="tela-home" class="tela tela-ativa">
             <div class="banner" onclick="abrirScanner()">
                 <div class="banner-img">📱</div>
@@ -136,18 +122,15 @@
                     <h3>Sincronizar Base PFS</h3>
                     <p>Baixar dados atualizados</p>
                 </div>
-            </div>
             <input type="file" id="file-input" accept="image/*" onchange="escanearArquivo(event)">
         </div>
 
-        <!-- TELA SCANNER -->
         <div id="tela-scanner" class="tela">
             <div id="reader"></div>
             <div id="resultado"></div>
             <button id="btn-stop" class="btn-danger" onclick="voltarHome()">⏹️ PARAR E VOLTAR</button>
         </div>
 
-        <!-- TELA LISTA CLIENTES -->
         <div id="tela-lista" class="tela">
             <h2 style="margin-bottom:15px">📋 Todos os Clientes PFS</h2>
             <div id="lista-clientes"></div>
@@ -157,20 +140,16 @@
 
     <div class="footer-nav">
         <div class="nav-item ativo" onclick="voltarHome()">
-            <span class="nav-icon">🏠</span>
-            Início
+            <span class="nav-icon">🏠</span>Início
         </div>
         <div class="nav-item" onclick="abrirScanner()">
-            <span class="nav-icon">📱</span>
-            Scanner
+            <span class="nav-icon">📱</span>Scanner
         </div>
         <div class="nav-item" onclick="abrirListaClientes()">
-            <span class="nav-icon">👥</span>
-            Clientes
+            <span class="nav-icon">👥</span>Clientes
         </div>
         <div class="nav-item" onclick="abrirConfig()">
-            <span class="nav-icon">⚙️</span>
-            Config
+            <span class="nav-icon">⚙️</span>Config
         </div>
     </div>
 
@@ -179,7 +158,6 @@ const URL_PLANILHA_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQANUa
 let html5QrCode, scannerRodando = false;
 let dadosPlanilha = [];
 
-// NAVEGAÇÃO
 function mostrarTela(nome) {
     document.querySelectorAll('.tela').forEach(t => t.classList.remove('tela-ativa'));
     document.getElementById('tela-' + nome).classList.add('tela-ativa');
@@ -208,13 +186,7 @@ function abrirListaClientes() {
         dadosPlanilha.forEach(c => {
             const status = verificarStatusPFS(c.dataFim);
             const cor = status === "ATIVO"? "verde" : "vermelho";
-            html += `
-                <div class="card" onclick="mostrarResultado('${c.codigo}')">
-                    <h3>${c.nome}</h3>
-                    <p><strong>Código:</strong> ${c.codigo}</p>
-                    <p class="${cor}"><strong>Status:</strong> ${status}</p>
-                    <p><small>Vence: ${c.dataFim || '-'}</small></p>
-                </div>`;
+            html += `<div class="card" onclick="mostrarResultado('${c.codigo}')"><h3>${c.nome}</h3><p><strong>Código:</strong> ${c.codigo}</p><p class="${cor}"><strong>Status:</strong> ${status}</p><p><small>Vence: ${c.dataFim || '-'}</small></p></div>`;
         });
     }
     document.getElementById('lista-clientes').innerHTML = html;
@@ -236,13 +208,11 @@ function abrirConfig() {
     alert(`MILTON TECH v5.4\n\nClientes: ${dadosPlanilha.length}\nÚltima sync: ${ultimaSync}\n\nModo: Offline Híbrido`);
 }
 
-// CARREGA DADOS
 function carregarDados() {
     const cache = localStorage.getItem('planilhaPFS');
     if(cache && cache!== '[]') dadosPlanilha = JSON.parse(cache);
 }
 
-// SINCRONIZA
 async function sincronizar() {
     mostrarTela('scanner');
     document.getElementById("resultado").innerHTML = `<div class="card">Baixando dados...</div>`;
@@ -252,30 +222,16 @@ async function sincronizar() {
         const linhas = csv.split("\n").slice(1);
         dadosPlanilha = linhas.filter(l => l.trim()).map(linha => {
             const col = linha.split(",");
-            return {
-                nome: col[0]?.trim() || '', codigo: col[1]?.trim() || '',
-                dataInicio: col[2]?.trim() || '', dataFim: col[3]?.trim() || '',
-                status: col[4]?.trim() || '', foto: col[5]?.trim() || '', telefone: col[6]?.trim() || ''
-            };
+            return { nome: col[0]?.trim() || '', codigo: col[1]?.trim() || '', dataInicio: col[2]?.trim() || '', dataFim: col[3]?.trim() || '', status: col[4]?.trim() || '', foto: col[5]?.trim() || '', telefone: col[6]?.trim() || '' };
         }).filter(c => c.codigo);
         localStorage.setItem('planilhaPFS', JSON.stringify(dadosPlanilha));
         localStorage.setItem('ultimaSync', new Date().toLocaleString('pt-AO'));
-        document.getElementById("resultado").innerHTML = `
-            <div class="card">
-                <span class="badge badge-online">SINCRONIZADO</span>
-                <h3>✅ ${dadosPlanilha.length} clientes salvos</h3>
-                <button onclick="voltarHome()">VOLTAR</button>
-            </div>`;
+        document.getElementById("resultado").innerHTML = `<div class="card"><span class="badge badge-online">SINCRONIZADO</span><h3>✅ ${dadosPlanilha.length} clientes salvos</h3><button onclick="voltarHome()">VOLTAR</button></div>`;
     } catch (e) {
-        document.getElementById("resultado").innerHTML = `
-            <div class="card">
-                <h3 class="vermelho">❌ Sem internet</h3>
-                <button onclick="voltarHome()">VOLTAR</button>
-            </div>`;
+        document.getElementById("resultado").innerHTML = `<div class="card"><h3 class="vermelho">❌ Sem internet</h3><button onclick="voltarHome()">VOLTAR</button></div>`;
     }
 }
 
-// VERIFICA STATUS
 function verificarStatusPFS(dataFim) {
     if(!dataFim) return "BLOQUEADO";
     try {
@@ -287,7 +243,6 @@ function verificarStatusPFS(dataFim) {
     } catch { return "BLOQUEADO"; }
 }
 
-// SALVA HISTÓRICO
 function salvarHistorico(cliente, status) {
     let historico = JSON.parse(localStorage.getItem('historicoPFS') || '[]');
     historico.push({ nome: cliente.nome, codigo: cliente.codigo, status: status, data: new Date().toLocaleString('pt-AO') });
@@ -295,50 +250,23 @@ function salvarHistorico(cliente, status) {
     localStorage.setItem('historicoPFS', JSON.stringify(historico));
 }
 
-// MOSTRA RESULTADO DIRETO - SEM PEDIR PRA ABRIR LINK
 function mostrarResultado(texto) {
     pararLeitor();
     const codigo = texto.trim();
     const cliente = dadosPlanilha.find(c => c.codigo === codigo);
-
     if (cliente) {
         const status = verificarStatusPFS(cliente.dataFim);
         const classe = status === "ATIVO"? "ativo" : "bloqueado";
         const cor = status === "ATIVO"? "verde" : "vermelho";
         const foto = cliente.foto? `<img src="${cliente.foto}" class="foto-cliente" onerror="this.style.display='none'">` : '';
-
         salvarHistorico(cliente, status);
-
-        document.getElementById("resultado").innerHTML = `
-            <div class="card ${classe}">
-                ${foto}
-                <h2>${cliente.nome}</h2>
-                <div class="info">
-                    <p><strong>Código:</strong> ${cliente.codigo}</p>
-                    <p><strong>Data Inicial:</strong> ${cliente.dataInicio || '-'}</p>
-                    <p><strong>Data Final:</strong> ${cliente.dataFim || '-'}</p>
-                    <p><strong>Telefone:</strong> ${cliente.telefone || '-'}</p>
-                </div>
-                <p class="status ${cor}">${status}</p>
-                <button onclick="abrirScanner()">ESCANEAR OUTRO</button>
-                <button class="btn-sec" onclick="voltarHome()">VOLTAR AO MENU</button>
-            </div>`;
+        document.getElementById("resultado").innerHTML = `<div class="card ${classe}">${foto}<h2>${cliente.nome}</h2><div class="info"><p><strong>Código:</strong> ${cliente.codigo}</p><p><strong>Data Inicial:</strong> ${cliente.dataInicio || '-'}</p><p><strong>Data Final:</strong> ${cliente.dataFim || '-'}</p><p><strong>Telefone:</strong> ${cliente.telefone || '-'}</p></div><p class="status ${cor}">${status}</p><button onclick="abrirScanner()">ESCANEAR OUTRO</button><button class="btn-sec" onclick="voltarHome()">VOLTAR AO MENU</button></div>`;
     } else {
-        document.getElementById("resultado").innerHTML = `
-            <div class="card">
-                <h3 class="laranja">⚠️ Código não encontrado</h3>
-                <p><strong>QR:</strong> ${codigo}</p>
-                <p><small>Base: ${dadosPlanilha.length} clientes</small></p>
-                <button onclick="abrirScanner()">TENTAR DE NOVO</button>
-                <button class="btn-sec" onclick="voltarHome()">VOLTAR</button>
-            </div>`;
+        document.getElementById("resultado").innerHTML = `<div class="card"><h3 class="laranja">⚠️ Código não encontrado</h3><p><strong>QR:</strong> ${codigo}</p><p><small>Base: ${dadosPlanilha.length} clientes</small></p><button onclick="abrirScanner()">TENTAR DE NOVO</button><button class="btn-sec" onclick="voltarHome()">VOLTAR</button></div>`;
     }
 }
 
-// SCANNER
-function onScanSuccess(texto) {
-    mostrarResultado(texto); // Já mostra direto, sem link
-}
+function onScanSuccess(texto) { mostrarResultado(texto); }
 
 async function iniciarLeitor() {
     if(scannerRodando) await pararLeitor();
@@ -360,7 +288,6 @@ async function pararLeitor() {
     }
 }
 
-// ESCANEAR IMAGEM
 async function escanearArquivo(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -369,19 +296,19 @@ async function escanearArquivo(event) {
     document.getElementById("resultado").innerHTML = `<div class="card">Lendo imagem...</div>`;
     try {
         const texto = await html5QrCode.scanFile(file, true);
-        mostrarResultado(texto); // Mostra direto
+        mostrarResultado(texto);
     } catch (e) {
-        document.getElementById("resultado").innerHTML = `
-            <div class="card">
-                <h3 class="vermelho">❌ QR não encontrado</h3>
-                <button onclick="voltarHome()">VOLTAR</button>
-            </div>`;
+        document.getElementById("resultado").innerHTML = `<div class="card"><h3 class="vermelho">❌ QR não encontrado</h3><button onclick="voltarHome()">VOLTAR</button></div>`;
     }
     event.target.value = '';
 }
 
-// INICIA
+// REGISTRA SERVICE WORKER PRA FUNCIONAR OFFLINE
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+}
+
 carregarDados();
 </script>
 </body>
-    </html>
+                    </html>
