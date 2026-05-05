@@ -7,116 +7,207 @@
     <title>Milton Tech - Validador PFS 5.4</title>
     <link rel="manifest" href="./manifest.json">
     <link rel="icon" href="./icon-192.png" type="image/png">
-    <link rel="apple-touch-icon" href="./icon-192.png">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: Arial, sans-serif; 
-            background: #0a1929; 
-            color: white; 
-            display: flex; 
-            flex-direction: column; 
-            min-height: 100vh; 
-        }
-        .header { 
-            background: #0d47a1; 
-            padding: 20px; 
-            text-align: center; 
-        }
-        .header img { 
-            width: 80px; 
-            height: 80px; 
-            display: block; 
-            margin: 0 auto 10px; 
-        }
-        .header h1 { font-size: 28px; margin-bottom: 5px; }
-        .header p { opacity: 0.9; }
-        .content { 
-            flex: 1; 
-            padding: 20px; 
-            text-align: center; 
-        }
-        #scanner { 
-            width: 100%; 
-            max-width: 400px; 
-            height: 300px; 
-            margin: 20px auto; 
-            background: #000; 
-            border-radius: 8px; 
-        }
-        button {
-            background: #1976d2;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 16px;
-            border-radius: 8px;
-            margin: 10px;
-        }
-        .nav { 
-            display: flex; 
-            background: #0d1b2a; 
-            border-top: 1px solid #1e3a5f; 
-        }
-        .nav-item { 
-            flex: 1; 
-            padding: 15px 5px; 
-            text-align: center; 
-            font-size: 12px; 
-            color: #90a4ae; 
-        }
-        .nav-item.active { color: #42a5f5; }
+        body { font-family: Arial, sans-serif; background: #0a1929; color: white; min-height: 100vh; display: flex; flex-direction: column; }
+     .header { background: #0d47a1; padding: 20px; text-align: center; }
+     .header img { width: 80px; height: 80px; display: block; margin: 0 auto 10px; object-fit: contain; }
+     .header h1 { font-size: 28px; }
+     .content { flex: 1; padding: 20px; display: none; }
+     .content.active { display: block; }
+        #scanner { width: 100%; max-width: 400px; height: 300px; margin: 20px auto; background: #000; border-radius: 8px; }
+        button { background: #1976d2; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 8px; margin: 5px; }
+        button.delete { background: #d32f2f; padding: 8px 12px; font-size: 12px; }
+     .nav { display: flex; background: #0d1b2a; border-top: 1px solid #1e3a5f; }
+     .nav-item { flex: 1; padding: 12px 5px; text-align: center; font-size: 11px; color: #90a4ae; cursor: pointer; }
+     .nav-item.active { color: #42a5f5; }
+     .lista-item { background: #1e3a5f; padding: 15px; margin: 10px 0; border-radius: 8px; text-align: left; position: relative; }
+     .resultado { color: #42a5f5; margin: 15px 0; font-size: 14px; text-align: center; }
+      input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: none; background: #1e3a5f; color: white; font-size: 16px; }
+     .form-box { background: #0d1b2a; padding: 15px; border-radius: 8px; margin: 15px 0; }
     </style>
 </head>
 <body>
     <div class="header">
-        <img src="./icon-192.png" alt="Logo Milton Tech">
+        <img src="./icon-512.png" alt="Logo Milton Tech">
         <h1>MILTON TECH</h1>
         <p>Validador PFS 5.4 - Lista Direta</p>
     </div>
 
-    <div class="content" id="home">
+    <div class="content active" id="home" style="text-align: center;">
         <h2>Bem-vindo</h2>
         <p>Sistema offline pronto para validar cartões PFS.</p>
-        <button onclick="abrirScanner()">Abrir Scanner</button>
+        <p>Total de clientes: <span id="totalClientes">0</span></p>
+        <button onclick="trocarAba('scanner')">Abrir Scanner</button>
+    </div>
+
+    <div class="content" id="scanner-tab" style="text-align: center;">
+        <h2>Scanner PFS</h2>
         <div id="scanner"></div>
-        <p id="resultado"></p>
+        <div class="resultado" id="resultado">Aponte para o QR Code...</div>
+        <button onclick="trocarAba('home')">Voltar</button>
+    </div>
+
+    <div class="content" id="clientes">
+        <h2>Lista de Clientes</h2>
+        <div id="listaClientes"></div>
+    </div>
+
+    <div class="content" id="admin">
+        <h2>Cadastrar Cliente</h2>
+        <div class="form-box">
+            <input type="text" id="nomeCliente" placeholder="Nome do cliente">
+            <input type="text" id="codigoCliente" placeholder="Código PFS / QR">
+            <select id="statusCliente">
+                <option value="✅ Válido">✅ Válido</option>
+                <option value="❌ Expirado">❌ Expirado</option>
+                <option value="❌ Bloqueado">❌ Bloqueado</option>
+                <option value="⏳ Pendente">⏳ Pendente</option>
+            </select>
+            <button onclick="adicionarCliente()">Salvar Cliente</button>
+        </div>
+        <button onclick="exportarClientes()">Exportar Lista</button>
+        <button onclick="limparTodos()" style="background: #d32f2f;">Apagar Tudo</button>
     </div>
 
     <div class="nav">
-        <div class="nav-item active">🏠<br>Início</div>
-        <div class="nav-item" onclick="abrirScanner()">📱<br>Scanner</div>
-        <div class="nav-item">👥<br>Clientes</div>
-        <div class="nav-item">⚙️<br>Config</div>
+        <div class="nav-item active" onclick="trocarAba('home')">🏠<br>Início</div>
+        <div class="nav-item" onclick="trocarAba('scanner')">📱<br>Scanner</div>
+        <div class="nav-item" onclick="trocarAba('clientes')">👥<br>Clientes</div>
+        <div class="nav-item" onclick="trocarAba('admin')">➕<br>Cadastrar</div>
     </div>
 
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script>
-        // Registra Service Worker
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./sw.js');
         }
 
+        // CARREGA CLIENTES SALVOS NO CELULAR
+        let clientes = JSON.parse(localStorage.getItem('clientesMilton')) || [];
+
+        window.addEventListener('load', () => {
+            renderizarLista();
+            const aba = new URLSearchParams(window.location.search).get('aba');
+            if (aba) trocarAba(aba);
+        });
+
+        function trocarAba(nomeAba) {
+            document.querySelectorAll('.content').forEach(div => div.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+
+            const idAba = nomeAba === 'scanner'? 'scanner-tab' : nomeAba;
+            document.getElementById(idAba).classList.add('active');
+
+            const botoes = ['home','scanner','clientes','admin'];
+            const index = botoes.indexOf(nomeAba);
+            if (index >= 0) document.querySelectorAll('.nav-item')[index].classList.add('active');
+
+            if (nomeAba === 'scanner') iniciarScanner();
+            if (nomeAba === 'home' || nomeAba === 'clientes') renderizarLista();
+        }
+
+        function renderizarLista() {
+            const lista = document.getElementById('listaClientes');
+            document.getElementById('totalClientes').innerText = clientes.length;
+
+            if (clientes.length === 0) {
+                lista.innerHTML = '<p style="text-align:center;opacity:0.7;">Nenhum cliente cadastrado.<br>Vá em "Cadastrar" pra adicionar.</p>';
+                return;
+            }
+
+            lista.innerHTML = clientes.map((c, i) => `
+                <div class="lista-item" id="cliente-${c.codigo}">
+                    <strong>${c.nome}</strong><br>
+                    Código: ${c.codigo}<br>
+                    Status: ${c.status}
+                    <button class="delete" onclick="removerCliente(${i})" style="position:absolute;top:10px;right:10px;">X</button>
+                </div>
+            `).join('');
+        }
+
+        function adicionarCliente() {
+            const nome = document.getElementById('nomeCliente').value.trim();
+            const codigo = document.getElementById('codigoCliente').value.trim();
+            const status = document.getElementById('statusCliente').value;
+
+            if (!nome ||!codigo) {
+                alert('Preenche nome e código!');
+                return;
+            }
+
+            // Evita duplicado
+            if (clientes.find(c => c.codigo === codigo)) {
+                alert('Código já cadastrado!');
+                return;
+            }
+
+            clientes.push({ nome, codigo, status });
+            localStorage.setItem('clientesMilton', JSON.stringify(clientes));
+
+            document.getElementById('nomeCliente').value = '';
+            document.getElementById('codigoCliente').value = '';
+            alert('Cliente salvo!');
+            renderizarLista();
+        }
+
+        function removerCliente(index) {
+            if (confirm('Apagar esse cliente?')) {
+                clientes.splice(index, 1);
+                localStorage.setItem('clientesMilton', JSON.stringify(clientes));
+                renderizarLista();
+            }
+        }
+
+        function limparTodos() {
+            if (confirm('APAGAR TODOS OS CLIENTES? Não tem volta!')) {
+                clientes = [];
+                localStorage.removeItem('clientesMilton');
+                renderizarLista();
+            }
+        }
+
+        function exportarClientes() {
+            const texto = clientes.map(c => `${c.nome} - ${c.codigo} - ${c.status}`).join('\n');
+            navigator.clipboard.writeText(texto);
+            alert('Lista copiada! Cola no WhatsApp ou bloco de notas.');
+        }
+
         let html5QrcodeScanner;
-
-        function abrirScanner() {
-            document.getElementById('resultado').innerText = 'Ligando câmera...';
-            html5QrcodeScanner = new Html5QrcodeScanner(
-                "scanner", 
-                { fps: 10, qrbox: 250 },
-                false
-            );
-            html5QrcodeScanner.render(onScanSuccess, onScanError);
+        function iniciarScanner() {
+            document.getElementById('resultado').innerText = 'Aponte para o QR Code...';
+            if (html5QrcodeScanner) html5QrcodeScanner.clear();
+            html5QrcodeScanner = new Html5QrcodeScanner("scanner", { fps: 10, qrbox: 250 }, false);
+            html5QrcodeScanner.render(onScanSuccess, () => {});
         }
 
-        function onScanSuccess(decodedText, decodedResult) {
-            document.getElementById('resultado').innerText = `Código: ${decodedText}`;
+        function onScanSuccess(decodedText) {
             html5QrcodeScanner.clear();
+            let codigo = decodedText;
+            if (decodedText.includes('qrco.de/')) codigo = decodedText.split('qrco.de/')[1];
+            if (decodedText.includes('codigo=')) codigo = new URL(decodedText).searchParams.get('codigo');
+
+            buscarCliente(codigo);
         }
 
-        function onScanError(error) {
-            // Ignora erros de leitura
+        function buscarCliente(codigo) {
+            trocarAba('clientes');
+            setTimeout(() => {
+                document.querySelectorAll('.lista-item').forEach(item => {
+                    item.style.border = 'none';
+                    item.style.background = '#1e3a5f';
+                });
+                const cliente = clientes.find(c => c.codigo === codigo);
+                const elemento = document.getElementById('cliente-' + codigo);
+                if (elemento) {
+                    elemento.style.border = '3px solid #4caf50';
+                    elemento.style.background = '#2e7d32';
+                    elemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    alert(`Cliente ${codigo} não encontrado. Cadastra ele na aba "Cadastrar".`);
+                }
+            }, 300);
         }
     </script>
 </body>
-</html>
+    </html>
