@@ -5,66 +5,93 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MILTON TECH - Validador PFS 5.4</title>
     <meta name="theme-color" content="#0d47a1">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icon-512.png">
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         :root { --azul: #0d47a1; --azul-escuro: #0a1929; --verde: #00c853; --vermelho: #d32f2f; --laranja: #ff9800; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--azul-escuro); color: #e3f2fd; padding-bottom: 70px; }
-.header { background: var(--azul); padding: 20px 15px; text-align: center; }
-.header h1 { font-size: 22px; font-weight: 800; }
-.header p { font-size: 14px; opacity: 0.9; margin-top: 4px; }
-.container { padding: 15px; max-width: 500px; margin: 0 auto; }
+
+        /* HEADER CORRIGIDO - CENTRALIZADO + LOGO */
+       .header {
+            background: var(--azul);
+            padding: 25px 15px 20px 15px; /* Aumentei o top pra descer da barra */
+            text-align: center;
+        }
+       .header img {
+            width: 65px;
+            height: 65px;
+            border-radius: 14px;
+            margin-bottom: 10px;
+        }
+       .header h1 {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            margin: 0;
+        }
+       .header p {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+       .container { padding: 15px; max-width: 500px; margin: 0 auto; }
 
         /* BANNER */
-.banner { background: linear-gradient(135deg, #1565c0, #0d47a1); padding: 20px; border-radius: 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; cursor: pointer; }
-.banner-img { font-size: 40px; }
-.banner-text h2 { font-size: 18px; margin-bottom: 8px; }
-.btn-banner { background: white; color: var(--azul); padding: 8px 16px; border-radius: 20px; font-weight: 700; border: none; font-size: 14px; }
+       .banner { background: linear-gradient(135deg, #1565c0, #0d47a1); padding: 20px; border-radius: 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; cursor: pointer; }
+       .banner-img { font-size: 40px; }
+       .banner-text h2 { font-size: 18px; margin-bottom: 8px; }
+       .btn-banner { background: white; color: var(--azul); padding: 8px 16px; border-radius: 20px; font-weight: 700; border: none; font-size: 14px; }
 
         /* GRID */
-.grid-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
-.grid-item { background: #132f4c; padding: 15px 8px; border-radius: 12px; text-align: center; border: 1px solid #1e4976; cursor: pointer; }
-.grid-item:active { background: #1e4976; }
-.grid-icon { font-size: 28px; margin-bottom: 8px; display: block; }
-.grid-item p { font-size: 12px; line-height: 1.2; }
+       .grid-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+       .grid-item { background: #132f4c; padding: 15px 8px; border-radius: 12px; text-align: center; border: 1px solid #1e4976; cursor: pointer; }
+       .grid-item:active { background: #1e4976; }
+       .grid-icon { font-size: 28px; margin-bottom: 8px; display: block; }
+       .grid-item p { font-size: 12px; line-height: 1.2; }
 
         /* CARDS */
-.card-grande { background: #132f4c; padding: 16px; border-radius: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 15px; border: 1px solid #1e4976; position: relative; cursor: pointer; }
-.card-grande-icon { font-size: 32px; }
-.card-grande h3 { font-size: 16px; margin-bottom: 4px; }
-.card-grande p { font-size: 13px; opacity: 0.8; }
-.tag-novo { position: absolute; top: 10px; right: 10px; background: var(--vermelho); color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 800; }
+       .card-grande { background: #132f4c; padding: 16px; border-radius: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 15px; border: 1px solid #1e4976; position: relative; cursor: pointer; }
+       .card-grande-icon { font-size: 32px; }
+       .card-grande h3 { font-size: 16px; margin-bottom: 4px; }
+       .card-grande p { font-size: 13px; opacity: 0.8; }
+       .tag-novo { position: absolute; top: 10px; right: 10px; background: var(--vermelho); color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 800; }
 
         /* SCANNER + RESULTADO */
-#reader { width: 100%; margin: 15px auto; border-radius: 16px; overflow: hidden; border: 3px solid #1565c0; background: #000; }
-.card { background: #132f4c; padding: 20px; border-radius: 16px; margin-top: 16px; border: 1px solid #1e4976; }
-.ativo { box-shadow: 0 0 0 3px var(--verde) inset; }
-.bloqueado { box-shadow: 0 0 0 3px var(--vermelho) inset; }
-.status { font-size: 28px; font-weight: 900; margin: 15px 0; text-align: center; }
-.verde { color: #4caf50; }
-.vermelho { color: #f44336; }
-button { width: 100%; padding: 16px; font-size: 16px; background: var(--azul); color: white; border: none; border-radius: 12px; margin-top: 12px; font-weight: 700; cursor: pointer; }
-.btn-sec { background: #1e4976; }
-.btn-danger { background: #b71c1c; }
-.info { font-size: 15px; line-height: 1.8; color: #bbdefb; }
-.info strong { color: white; }
-.badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; margin-bottom: 10px; }
-.badge-offline { background: var(--laranja); color: #000; }
-.badge-online { background: var(--verde); color: #000; }
-.foto-cliente { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--azul); margin: 0 auto 15px; display: block; }
-.tela { display: none; }
-.tela-ativa { display: block; }
-#file-input { display: none; }
+        #reader { width: 100%; margin: 15px auto; border-radius: 16px; overflow: hidden; border: 3px solid #1565c0; background: #000; }
+       .card { background: #132f4c; padding: 20px; border-radius: 16px; margin-top: 16px; border: 1px solid #1e4976; }
+       .ativo { box-shadow: 0 0 0 3px var(--verde) inset; }
+       .bloqueado { box-shadow: 0 0 0 3px var(--vermelho) inset; }
+       .status { font-size: 28px; font-weight: 900; margin: 15px 0; text-align: center; }
+       .verde { color: #4caf50; }
+       .vermelho { color: #f44336; }
+       .laranja { color: #ff9800; }
+        button { width: 100%; padding: 16px; font-size: 16px; background: var(--azul); color: white; border: none; border-radius: 12px; margin-top: 12px; font-weight: 700; cursor: pointer; }
+       .btn-sec { background: #1e4976; }
+       .btn-danger { background: #b71c1c; }
+       .info { font-size: 15px; line-height: 1.8; color: #bbdefb; }
+       .info strong { color: white; }
+       .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; margin-bottom: 10px; }
+       .badge-offline { background: var(--laranja); color: #000; }
+       .badge-online { background: var(--verde); color: #000; }
+       .foto-cliente { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--azul); margin: 0 auto 15px; display: block; }
+       .tela { display: none; }
+       .tela-ativa { display: block; }
+        #file-input { display: none; }
 
         /* MENU INFERIOR */
-.footer-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0a1929; display: flex; border-top: 1px solid #1e4976; }
-.nav-item { flex: 1; text-align: center; padding: 12px; font-size: 11px; cursor: pointer; }
-.nav-item.ativo { color: var(--azul); }
-.nav-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+       .footer-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0a1929; display: flex; border-top: 1px solid #1e4976; }
+       .nav-item { flex: 1; text-align: center; padding: 12px; font-size: 11px; cursor: pointer; }
+       .nav-item.ativo { color: var(--azul); }
+       .nav-icon { font-size: 20px; display: block; margin-bottom: 4px; }
     </style>
 </head>
 <body>
+    <!-- HEADER COM LOGO CENTRALIZADO - ATUALIZADO -->
     <div class="header">
+        <img src="icon-512.png" alt="Logo Milton Tech">
         <h1>MILTON TECH</h1>
         <p>Validador PFS 5.4 - Lista Direta</p>
     </div>
@@ -357,4 +384,4 @@ async function escanearArquivo(event) {
 carregarDados();
 </script>
 </body>
-                    </html>
+    </html>
