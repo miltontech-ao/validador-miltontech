@@ -1,39 +1,53 @@
-const CACHE_NAME = 'milton-tech-v6.0'; // MUDEI A VERSÃO
+const CACHE_NAME = 'milton-pfs-v6.3';
 const urlsToCache = [
   './',
   './index.html',
+  './manifest.json',
   './icon-192.png',
-  './icon-512.png',
-  './manifest.json'
+  './icon-512.png'
 ];
 
-// Instala e força atualizar
+// Instala o Service Worker e guarda os arquivos no cache
 self.addEventListener('install', event => {
-  self.skipWaiting(); // Força o novo SW a ativar
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+    caches.open(CACHE_NAME)
+     .then(cache => {
+        console.log('Cache v6.3 aberto');
+        return cache.addAll(urlsToCache);
+      })
   );
+  self.skipWaiting();
 });
 
-// Ativa e limpa cache velho
+// Ativa o novo Service Worker e apaga caches antigos
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys => {
+    caches.keys().then(cacheNames => {
       return Promise.all(
-        keys.map(key => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key); // Apaga cache antigo
+        cacheNames.map(cacheName => {
+          if (cacheName!== CACHE_NAME) {
+            console.log('Apagando cache antigo:', cacheName);
+            return caches.delete(cacheName);
           }
         })
       );
     })
   );
-  return self.clients.claim();
+  self.clients.claim();
 });
 
-// Busca
+// Intercepta as requisições: se tiver no cache, usa. Se não, busca na rede
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request).then(response => response || fetch(event.request))
+    caches.match(event.request)
+     .then(response => {
+        // Cache hit - retorna a resposta
+        if (response) {
+          return response;
+        }
+        // Não tem no cache - busca na rede
+        return fetch(event.request);
+      }
+    )
   );
 });
