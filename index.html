@@ -3,312 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MILTON TECH - Validador PFS 5.4</title>
     <meta name="theme-color" content="#0d47a1">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="icon-512.png">
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <title>Milton Tech - Validador PFS 5.4</title>
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" href="./icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="./icon-192.png">
     <style>
-        :root { --azul: #0d47a1; --azul-escuro: #0a1929; --verde: #00c853; --vermelho: #d32f2f; --laranja: #ff9800; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--azul-escuro); color: #e3f2fd; padding-bottom: 70px; }
-
-        /* HEADER CENTRALIZADO + LOGO */
-      .header {
-            background: var(--azul);
-            padding: 25px 15px 20px 15px;
-            text-align: center;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: Arial, sans-serif; 
+            background: #0a1929; 
+            color: white; 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh; 
         }
-      .header img {
-            width: 65px;
-            height: 65px;
-            border-radius: 14px;
-            margin-bottom: 10px;
+        .header { 
+            background: #0d47a1; 
+            padding: 20px; 
+            text-align: center; 
         }
-      .header h1 {
-            font-size: 24px;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            margin: 0;
+        .header img { 
+            width: 80px; 
+            height: 80px; 
+            display: block; 
+            margin: 0 auto 10px; 
         }
-      .header p {
-            font-size: 14px;
-            opacity: 0.9;
-            margin-top: 5px;
+        .header h1 { font-size: 28px; margin-bottom: 5px; }
+        .header p { opacity: 0.9; }
+        .content { 
+            flex: 1; 
+            padding: 20px; 
+            text-align: center; 
         }
-
-      .container { padding: 15px; max-width: 500px; margin: 0 auto; }
-      .banner { background: linear-gradient(135deg, #1565c0, #0d47a1); padding: 20px; border-radius: 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; cursor: pointer; }
-      .banner-img { font-size: 40px; }
-      .banner-text h2 { font-size: 18px; margin-bottom: 8px; }
-      .btn-banner { background: white; color: var(--azul); padding: 8px 16px; border-radius: 20px; font-weight: 700; border: none; font-size: 14px; }
-      .grid-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
-      .grid-item { background: #132f4c; padding: 15px 8px; border-radius: 12px; text-align: center; border: 1px solid #1e4976; cursor: pointer; }
-      .grid-item:active { background: #1e4976; }
-      .grid-icon { font-size: 28px; margin-bottom: 8px; display: block; }
-      .grid-item p { font-size: 12px; line-height: 1.2; }
-      .card-grande { background: #132f4c; padding: 16px; border-radius: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 15px; border: 1px solid #1e4976; position: relative; cursor: pointer; }
-      .card-grande-icon { font-size: 32px; }
-      .card-grande h3 { font-size: 16px; margin-bottom: 4px; }
-      .card-grande p { font-size: 13px; opacity: 0.8; }
-        #reader { width: 100%; margin: 15px auto; border-radius: 16px; overflow: hidden; border: 3px solid #1565c0; background: #000; }
-      .card { background: #132f4c; padding: 20px; border-radius: 16px; margin-top: 16px; border: 1px solid #1e4976; }
-      .ativo { box-shadow: 0 0 0 3px var(--verde) inset; }
-      .bloqueado { box-shadow: 0 0 0 3px var(--vermelho) inset; }
-      .status { font-size: 28px; font-weight: 900; margin: 15px 0; text-align: center; }
-      .verde { color: #4caf50; }
-      .vermelho { color: #f44336; }
-      .laranja { color: #ff9800; }
-        button { width: 100%; padding: 16px; font-size: 16px; background: var(--azul); color: white; border: none; border-radius: 12px; margin-top: 12px; font-weight: 700; cursor: pointer; }
-      .btn-sec { background: #1e4976; }
-      .btn-danger { background: #b71c1c; }
-      .info { font-size: 15px; line-height: 1.8; color: #bbdefb; }
-      .info strong { color: white; }
-      .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; margin-bottom: 10px; }
-      .badge-online { background: var(--verde); color: #000; }
-      .foto-cliente { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--azul); margin: 0 auto 15px; display: block; }
-      .tela { display: none; }
-      .tela-ativa { display: block; }
-        #file-input { display: none; }
-      .footer-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0a1929; display: flex; border-top: 1px solid #1e4976; }
-      .nav-item { flex: 1; text-align: center; padding: 12px; font-size: 11px; cursor: pointer; }
-      .nav-item.ativo { color: var(--azul); }
-      .nav-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+        #scanner { 
+            width: 100%; 
+            max-width: 400px; 
+            height: 300px; 
+            margin: 20px auto; 
+            background: #000; 
+            border-radius: 8px; 
+        }
+        button {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            margin: 10px;
+        }
+        .nav { 
+            display: flex; 
+            background: #0d1b2a; 
+            border-top: 1px solid #1e3a5f; 
+        }
+        .nav-item { 
+            flex: 1; 
+            padding: 15px 5px; 
+            text-align: center; 
+            font-size: 12px; 
+            color: #90a4ae; 
+        }
+        .nav-item.active { color: #42a5f5; }
     </style>
 </head>
 <body>
     <div class="header">
-        <img src="icon-512.png" alt="Logo Milton Tech">
+        <img src="./icon-192.png" alt="Logo Milton Tech">
         <h1>MILTON TECH</h1>
         <p>Validador PFS 5.4 - Lista Direta</p>
     </div>
 
-    <div class="container">
-        <div id="tela-home" class="tela tela-ativa">
-            <div class="banner" onclick="abrirScanner()">
-                <div class="banner-img">📱</div>
-                <div class="banner-text">
-                    <h2>Escanear QR PFS</h2>
-                    <button class="btn-banner">Abrir câmera agora</button>
-                </div>
-            </div>
-
-            <div class="grid-menu">
-                <div class="grid-item" onclick="abrirScanner()">
-                    <span class="grid-icon">📊</span>
-                    <p>QR / Código<br>de barras</p>
-                </div>
-                <div class="grid-item" onclick="document.getElementById('file-input').click()">
-                    <span class="grid-icon">🖼️</span>
-                    <p>Escanear<br>Imagem</p>
-                </div>
-                <div class="grid-item" onclick="abrirListaClientes()">
-                    <span class="grid-icon">👥</span>
-                    <p>Lista de<br>Clientes</p>
-                </div>
-            </div>
-
-            <div class="card-grande" onclick="abrirHistorico()">
-                <span class="card-grande-icon">📋</span>
-                <div>
-                    <h3>Histórico de Leituras</h3>
-                    <p>Últimos QRs escaneados</p>
-                </div>
-            </div>
-
-            <div class="card-grande" onclick="sincronizar()">
-                <span class="card-grande-icon">🔄</span>
-                <div>
-                    <h3>Sincronizar Base PFS</h3>
-                    <p>Baixar dados atualizados</p>
-                </div>
-            <input type="file" id="file-input" accept="image/*" onchange="escanearArquivo(event)">
-        </div>
-
-        <div id="tela-scanner" class="tela">
-            <div id="reader"></div>
-            <div id="resultado"></div>
-            <button id="btn-stop" class="btn-danger" onclick="voltarHome()">⏹️ PARAR E VOLTAR</button>
-        </div>
-
-        <div id="tela-lista" class="tela">
-            <h2 style="margin-bottom:15px">📋 Todos os Clientes PFS</h2>
-            <div id="lista-clientes"></div>
-            <button class="btn-sec" onclick="voltarHome()">VOLTAR AO MENU</button>
-        </div>
+    <div class="content" id="home">
+        <h2>Bem-vindo</h2>
+        <p>Sistema offline pronto para validar cartões PFS.</p>
+        <button onclick="abrirScanner()">Abrir Scanner</button>
+        <div id="scanner"></div>
+        <p id="resultado"></p>
     </div>
 
-    <div class="footer-nav">
-        <div class="nav-item ativo" onclick="voltarHome()">
-            <span class="nav-icon">🏠</span>Início
-        </div>
-        <div class="nav-item" onclick="abrirScanner()">
-            <span class="nav-icon">📱</span>Scanner
-        </div>
-        <div class="nav-item" onclick="abrirListaClientes()">
-            <span class="nav-icon">👥</span>Clientes
-        </div>
-        <div class="nav-item" onclick="abrirConfig()">
-            <span class="nav-icon">⚙️</span>Config
-        </div>
+    <div class="nav">
+        <div class="nav-item active">🏠<br>Início</div>
+        <div class="nav-item" onclick="abrirScanner()">📱<br>Scanner</div>
+        <div class="nav-item">👥<br>Clientes</div>
+        <div class="nav-item">⚙️<br>Config</div>
     </div>
 
-<script>
-const URL_PLANILHA_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQANUa7iBeRexdi51FuLHzPgG5LP5CgY8SKSXYWAvcNbL6Mu1UbieDsrDQlQRcc5UDPfkVv4ZHqOIfx/pub?output=csv";
-let html5QrCode, scannerRodando = false;
-let dadosPlanilha = [];
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script>
+        // Registra Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js');
+        }
 
-function mostrarTela(nome) {
-    document.querySelectorAll('.tela').forEach(t => t.classList.remove('tela-ativa'));
-    document.getElementById('tela-' + nome).classList.add('tela-ativa');
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('ativo'));
-}
+        let html5QrcodeScanner;
 
-function voltarHome() {
-    pararLeitor();
-    mostrarTela('home');
-    document.querySelector('.nav-item').classList.add('ativo');
-    carregarDados();
-}
+        function abrirScanner() {
+            document.getElementById('resultado').innerText = 'Ligando câmera...';
+            html5QrcodeScanner = new Html5QrcodeScanner(
+                "scanner", 
+                { fps: 10, qrbox: 250 },
+                false
+            );
+            html5QrcodeScanner.render(onScanSuccess, onScanError);
+        }
 
-function abrirScanner() {
-    mostrarTela('scanner');
-    document.getElementById("resultado").innerHTML = "";
-    iniciarLeitor();
-}
+        function onScanSuccess(decodedText, decodedResult) {
+            document.getElementById('resultado').innerText = `Código: ${decodedText}`;
+            html5QrcodeScanner.clear();
+        }
 
-function abrirListaClientes() {
-    carregarDados();
-    let html = '';
-    if(dadosPlanilha.length === 0) {
-        html = '<div class="card"><h3>Nenhum cliente</h3><p>Sincroniza primeiro</p></div>';
-    } else {
-        dadosPlanilha.forEach(c => {
-            const status = verificarStatusPFS(c.dataFim);
-            const cor = status === "ATIVO"? "verde" : "vermelho";
-            html += `<div class="card" onclick="mostrarResultado('${c.codigo}')"><h3>${c.nome}</h3><p><strong>Código:</strong> ${c.codigo}</p><p class="${cor}"><strong>Status:</strong> ${status}</p><p><small>Vence: ${c.dataFim || '-'}</small></p></div>`;
-        });
-    }
-    document.getElementById('lista-clientes').innerHTML = html;
-    mostrarTela('lista');
-}
-
-function abrirHistorico() {
-    const historico = JSON.parse(localStorage.getItem('historicoPFS') || '[]');
-    if(historico.length === 0) return alert('Histórico vazio');
-    let msg = 'Últimas 10 leituras:\n\n';
-    historico.slice(-10).reverse().forEach((h, i) => {
-        msg += `${i+1}. ${h.nome} - ${h.status}\n ${h.data}\n\n`;
-    });
-    alert(msg);
-}
-
-function abrirConfig() {
-    const ultimaSync = localStorage.getItem('ultimaSync') || 'Nunca';
-    alert(`MILTON TECH v5.4\n\nClientes: ${dadosPlanilha.length}\nÚltima sync: ${ultimaSync}\n\nModo: Offline Híbrido`);
-}
-
-function carregarDados() {
-    const cache = localStorage.getItem('planilhaPFS');
-    if(cache && cache!== '[]') dadosPlanilha = JSON.parse(cache);
-}
-
-async function sincronizar() {
-    mostrarTela('scanner');
-    document.getElementById("resultado").innerHTML = `<div class="card">Baixando dados...</div>`;
-    try {
-        const resposta = await fetch(URL_PLANILHA_CSV);
-        const csv = await resposta.text();
-        const linhas = csv.split("\n").slice(1);
-        dadosPlanilha = linhas.filter(l => l.trim()).map(linha => {
-            const col = linha.split(",");
-            return { nome: col[0]?.trim() || '', codigo: col[1]?.trim() || '', dataInicio: col[2]?.trim() || '', dataFim: col[3]?.trim() || '', status: col[4]?.trim() || '', foto: col[5]?.trim() || '', telefone: col[6]?.trim() || '' };
-        }).filter(c => c.codigo);
-        localStorage.setItem('planilhaPFS', JSON.stringify(dadosPlanilha));
-        localStorage.setItem('ultimaSync', new Date().toLocaleString('pt-AO'));
-        document.getElementById("resultado").innerHTML = `<div class="card"><span class="badge badge-online">SINCRONIZADO</span><h3>✅ ${dadosPlanilha.length} clientes salvos</h3><button onclick="voltarHome()">VOLTAR</button></div>`;
-    } catch (e) {
-        document.getElementById("resultado").innerHTML = `<div class="card"><h3 class="vermelho">❌ Sem internet</h3><button onclick="voltarHome()">VOLTAR</button></div>`;
-    }
-}
-
-function verificarStatusPFS(dataFim) {
-    if(!dataFim) return "BLOQUEADO";
-    try {
-        const partes = dataFim.split(" ");
-        const data = partes[0].split("/");
-        const hora = partes[1] || "23:59";
-        const dataFormatada = `${data[2]}-${data[1]}-${data[0]}T${hora}:00`;
-        return new Date() > new Date(dataFormatada)? "BLOQUEADO" : "ATIVO";
-    } catch { return "BLOQUEADO"; }
-}
-
-function salvarHistorico(cliente, status) {
-    let historico = JSON.parse(localStorage.getItem('historicoPFS') || '[]');
-    historico.push({ nome: cliente.nome, codigo: cliente.codigo, status: status, data: new Date().toLocaleString('pt-AO') });
-    if(historico.length > 50) historico = historico.slice(-50);
-    localStorage.setItem('historicoPFS', JSON.stringify(historico));
-}
-
-function mostrarResultado(texto) {
-    pararLeitor();
-    const codigo = texto.trim();
-    const cliente = dadosPlanilha.find(c => c.codigo === codigo);
-    if (cliente) {
-        const status = verificarStatusPFS(cliente.dataFim);
-        const classe = status === "ATIVO"? "ativo" : "bloqueado";
-        const cor = status === "ATIVO"? "verde" : "vermelho";
-        const foto = cliente.foto? `<img src="${cliente.foto}" class="foto-cliente" onerror="this.style.display='none'">` : '';
-        salvarHistorico(cliente, status);
-        document.getElementById("resultado").innerHTML = `<div class="card ${classe}">${foto}<h2>${cliente.nome}</h2><div class="info"><p><strong>Código:</strong> ${cliente.codigo}</p><p><strong>Data Inicial:</strong> ${cliente.dataInicio || '-'}</p><p><strong>Data Final:</strong> ${cliente.dataFim || '-'}</p><p><strong>Telefone:</strong> ${cliente.telefone || '-'}</p></div><p class="status ${cor}">${status}</p><button onclick="abrirScanner()">ESCANEAR OUTRO</button><button class="btn-sec" onclick="voltarHome()">VOLTAR AO MENU</button></div>`;
-    } else {
-        document.getElementById("resultado").innerHTML = `<div class="card"><h3 class="laranja">⚠️ Código não encontrado</h3><p><strong>QR:</strong> ${codigo}</p><p><small>Base: ${dadosPlanilha.length} clientes</small></p><button onclick="abrirScanner()">TENTAR DE NOVO</button><button class="btn-sec" onclick="voltarHome()">VOLTAR</button></div>`;
-    }
-}
-
-function onScanSuccess(texto) { mostrarResultado(texto); }
-
-async function iniciarLeitor() {
-    if(scannerRodando) await pararLeitor();
-    document.getElementById("reader").style.display = 'block';
-    html5QrCode = new Html5Qrcode("reader");
-    try {
-        await html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, onScanSuccess);
-        scannerRodando = true;
-    } catch (err) {
-        document.getElementById("resultado").innerHTML = `<div class="card"><h3>Erro na câmera</h3></div>`;
-    }
-}
-
-async function pararLeitor() {
-    if(html5QrCode && scannerRodando) {
-        await html5QrCode.stop();
-        scannerRodando = false;
-        document.getElementById("reader").style.display = 'none';
-    }
-}
-
-async function escanearArquivo(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    mostrarTela('scanner');
-    if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
-    document.getElementById("resultado").innerHTML = `<div class="card">Lendo imagem...</div>`;
-    try {
-        const texto = await html5QrCode.scanFile(file, true);
-        mostrarResultado(texto);
-    } catch (e) {
-        document.getElementById("resultado").innerHTML = `<div class="card"><h3 class="vermelho">❌ QR não encontrado</h3><button onclick="voltarHome()">VOLTAR</button></div>`;
-    }
-    event.target.value = '';
-}
-
-// REGISTRA SERVICE WORKER PRA FUNCIONAR OFFLINE
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js');
-}
-
-carregarDados();
-</script>
+        function onScanError(error) {
+            // Ignora erros de leitura
+        }
+    </script>
 </body>
-                    </html>
+</html>
