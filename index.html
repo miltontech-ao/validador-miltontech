@@ -1,348 +1,209 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0d47a1">
-    <title>Milton Tech - Validador PFS 6.3</title>
-    <link rel="manifest" href="./manifest.json">
-    <link rel="icon" href="./icon-192.png" type="image/png">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #0a1929; color: white; min-height: 100vh; display: flex; flex-direction: column; }
-      .header { background: #0d47a1; padding: 20px; text-align: center; }
-      .header img { width: 80px; height: 80px; display: block; margin: 0 auto 10px; object-fit: contain; }
-      .header h1 { font-size: 28px; }
-      .content { flex: 1; padding: 20px; display: none; padding-bottom: 80px; }
-      .content.active { display: block; }
-        #scanner { width: 100%; max-width: 400px; height: 300px; margin: 20px auto; background: #000; border-radius: 8px; }
-        button { background: #1976d2; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 8px; margin: 5px; cursor: pointer; }
-        button.small { padding: 8px 12px; font-size: 12px; }
-        button.delete { background: #d32f2f; }
-        button.qr { background: #388e3c; }
-        button.edit { background: #ff9800; }
-      .nav { display: flex; background: #0d1b2a; border-top: 1px solid #1e3a5f; position: fixed; bottom: 0; width: 100%; }
-      .nav-item { flex: 1; padding: 12px 5px; text-align: center; font-size: 11px; color: #90a4ae; cursor: pointer; }
-      .nav-item.active { color: #42a5f5; }
-      .lista-item { background: #1e3a5f; padding: 15px; margin: 10px 0; border-radius: 8px; text-align: left; position: relative; }
-      .status-valid { border-left: 4px solid #4caf50; }
-      .status-exp { border-left: 4px solid #f44336; }
-      .status-pend { border-left: 4px solid #ff9800; }
-      .resultado { color: #42a5f5; margin: 15px 0; font-size: 14px; text-align: center; }
-        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: none; background: #1e3a5f; color: white; font-size: 16px; }
-      .form-box { background: #0d1b2a; padding: 15px; border-radius: 8px; margin: 15px 0; }
-      .label { font-size: 12px; opacity: 0.8; margin-top: 10px; }
-      .row { display: flex; gap: 10px; }
-      .row > * { flex: 1; }
-      .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 999; align-items: center; justify-content: center; }
-      .modal-content { background: #0d1b2a; padding: 20px; border-radius: 8px; text-align: center; max-width: 90%; }
-        #qrcode { background: white; padding: 15px; border-radius: 8px; margin: 15px auto; display: inline-block; }
-      .btn-group { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Completo PFS</title>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+    }
+   .aba {
+      display: inline-block;
+      padding: 12px 24px;
+      background: #1e1e1e;
+      margin: 5px;
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      font-weight: bold;
+    }
+   .aba.ativo {
+      background: #00d4aa;
+      color: #000;
+    }
+   .conteudo {
+      display: none;
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+   .conteudo.ativo {
+      display: block;
+    }
+    #reader, #qrcode {
+      width: 100%;
+      max-width: 350px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    #reader {
+      border: 2px solid #00d4aa;
+      padding: 0;
+    }
+    input {
+      width: 90%;
+      max-width: 400px;
+      padding: 12px;
+      border-radius: 6px;
+      border: 2px solid #00d4aa;
+      background: #111;
+      color: #fff;
+      font-size: 16px;
+      margin: 10px 0;
+    }
+    button {
+      background: #00d4aa;
+      color: #000;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      margin: 8px;
+      cursor: pointer;
+    }
+   .btn-sec {
+      background: #2563eb;
+      color: #fff;
+    }
+   .btn-off {
+      background: #ef4444;
+      color: #fff;
+    }
+    #result {
+      margin-top: 15px;
+      padding: 15px;
+      background: #111;
+      border-radius: 8px;
+      word-break: break-all;
+      min-height: 20px;
+    }
+  </style>
 </head>
 <body>
-    <div class="header">
-        <img src="./icon-512.png" alt="Logo Milton Tech">
-        <h1>MILTON TECH</h1>
-        <p>Validador PFS 6.3 - Editar + Renovar</p>
-    </div>
+  <h2>⚡ QR Completo PFS</h2>
 
-    <div class="content active" id="home" style="text-align: center;">
-        <h2>Bem-vindo</h2>
-        <p>Total: <span id="totalClientes">0</span> | Válidos: <span id="totalValidos">0</span> | Expirados: <span id="totalExpirados">0</span></p>
-        <button onclick="trocarAba('scanner')">Abrir Scanner</button>
-    </div>
+  <div class="aba ativo" onclick="trocarAba('gerar')">Gerar QR</div>
+  <div class="aba" onclick="trocarAba('ler')">Ler QR</div>
 
-    <div class="content" id="scanner-tab" style="text-align: center;">
-        <h2>Scanner PFS</h2>
-        <div id="scanner"></div>
-        <div class="resultado" id="resultado">Aponte para o QR Code...</div>
-        <button onclick="trocarAba('home')">Voltar</button>
-    </div>
+  <!-- ABA GERAR -->
+  <div id="gerar" class="conteudo ativo">
+    <h3>Gerar QR Code</h3>
+    <input type="text" id="texto" placeholder="Digita: PFS-9A8B7C6D" value="PFS-9A8B7C6D">
+    <br>
+    <button onclick="gerarQR()">Gerar</button>
+    <button class="btn-sec" onclick="baixarQR()">Baixar PNG</button>
+    <button class="btn-sec" onclick="copiarTexto()">Copiar Texto</button>
+    <div id="qrcode"></div>
+  </div>
 
-    <div class="content" id="clientes">
-        <h2>Lista de Clientes</h2>
-        <div id="listaClientes"></div>
-    </div>
+  <!-- ABA LER -->
+  <div id="ler" class="conteudo">
+    <h3>Ler QR Code</h3>
+    <div id="reader"></div>
+    <button onclick="iniciarCamera()">Ligar Câmera</button>
+    <button class="btn-off" onclick="pararCamera()">Parar</button>
+    <p>OU</p>
+    <input type="file" id="qr-input-file" accept="image/*">
+    <div id="result">Aguardando leitura...</div>
+  </div>
 
-    <div class="content" id="admin">
-        <h2 id="tituloForm">Cadastrar Cliente</h2>
-        <div class="form-box">
-            <input type="hidden" id="editandoIndex" value="">
-            <input type="text" id="nomeCliente" placeholder="Nome do cliente">
-            <div class="row">
-                <input type="text" id="codigoCliente" placeholder="Código PFS / QR">
-                <button onclick="gerarCodigo()" class="small" style="margin: 8px 0;">Gerar</button>
-            </div>
-            <div class="label">Data Início:</div>
-            <input type="date" id="dataInicio">
-            <div class="label">Data Fim:</div>
-            <input type="date" id="dataFim">
-            <button onclick="salvarCliente()" id="btnSalvar">Salvar Cliente</button>
-            <button onclick="cancelarEdicao()" id="btnCancelar" style="background:#666;display:none;">Cancelar</button>
-        </div>
+  <script>
+    let html5QrCode;
+    let cameraLigada = false;
 
-        <h3>Importar da Planilha</h3>
-        <div class="form-box">
-            <div class="label">Cola do Excel: Nome[TAB]Codigo[TAB]DataInicio[TAB]DataFim</div>
-            <textarea id="textoImportar" rows="4" placeholder="Francisco	M-2026-05-001	2026-05-01	2026-05-31"></textarea>
-            <button onclick="importarPlanilha()">Importar Tudo</button>
-        </div>
+    // TROCAR ABA
+    function trocarAba(aba) {
+      document.querySelectorAll('.aba').forEach(el => el.classList.remove('ativo'));
+      document.querySelectorAll('.conteudo').forEach(el => el.classList.remove('ativo'));
+      event.target.classList.add('ativo');
+      document.getElementById(aba).classList.add('ativo');
+      if (aba === 'ler' &&!cameraLigada) iniciarCamera();
+      if (aba === 'gerar') pararCamera();
+    }
 
-        <button onclick="exportarClientes()">Exportar Lista</button>
-        <button onclick="limparTodos()" class="delete">Apagar Tudo</button>
-    </div>
+    // GERADOR
+    function gerarQR() {
+      const texto = document.getElementById('texto').value;
+      const divQR = document.getElementById('qrcode');
+      if (!texto) return alert('Digita alguma coisa!');
+      divQR.innerHTML = '';
+      new QRCode(divQR, {
+        text: texto,
+        width: 280,
+        height: 280,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
 
-    <div class="nav">
-        <div class="nav-item active" onclick="trocarAba('home')">🏠<br>Início</div>
-        <div class="nav-item" onclick="trocarAba('scanner')">📱<br>Scanner</div>
-        <div class="nav-item" onclick="trocarAba('clientes')">👥<br>Clientes</div>
-        <div class="nav-item" onclick="trocarAba('admin')">➕<br>Cadastrar</div>
-    </div>
+    function baixarQR() {
+      const img = document.querySelector('#qrcode img');
+      if (!img) return alert('Gera o QR primeiro!');
+      const link = document.createElement('a');
+      link.href = img.src;
+      link.download = document.getElementById('texto').value + '.png';
+      link.click();
+    }
 
-    <div class="modal" id="modalQR" onclick="fecharQR()">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h3 id="nomeQR"></h3>
-            <div id="qrcode"></div>
-            <p id="codigoQR" style="font-size:12px;opacity:0.8;"></p>
-            <button onclick="fecharQR()">Fechar</button>
-        </div>
-    </div>
+    function copiarTexto() {
+      navigator.clipboard.writeText(document.getElementById('texto').value);
+      alert('Texto copiado!');
+    }
 
-    <script src="https://unpkg.com/html5-qrcode"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js');
-        }
+    // LEITOR
+    function mostrarResultado(texto) {
+      document.getElementById('result').innerHTML = `<strong>✅ Leu:</strong><br>${texto}`;
+    }
 
-        let clientes = JSON.parse(localStorage.getItem('clientesMilton')) || [];
+    function iniciarCamera() {
+      if (cameraLigada) return;
+      html5QrCode = new Html5Qrcode("reader");
+      html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
+        (decodedText) => mostrarResultado(decodedText),
+        () => {}
+      ).then(() => {
+        cameraLigada = true;
+        document.getElementById('result').innerHTML = 'Câmera ligada. Aponta pro QR...';
+      }).catch(err => {
+        document.getElementById('result').innerHTML = `❌ Erro: ${err}`;
+      });
+    }
 
-        window.addEventListener('load', () => {
-            renderizarLista();
-            const aba = new URLSearchParams(window.location.search).get('aba');
-            if (aba) trocarAba(aba);
-            document.getElementById('dataInicio').valueAsDate = new Date();
+    function pararCamera() {
+      if (html5QrCode && cameraLigada) {
+        html5QrCode.stop().then(() => {
+          cameraLigada = false;
+          document.getElementById('reader').innerHTML = '';
         });
+      }
+    }
 
-        function calcularStatus(dataInicio, dataFim) {
-            const hoje = new Date().toISOString().split('T')[0];
-            if (hoje < dataInicio) return '⏳ Pendente';
-            if (hoje > dataFim) return '❌ Expirado';
-            return '✅ Válido';
-        }
+    // Ler de imagem
+    document.getElementById('qr-input-file').addEventListener('change', e => {
+      if (e.target.files.length == 0) return;
+      const html5QrCodeFile = new Html5Qrcode("reader");
+      html5QrCodeFile.scanFile(e.target.files[0], true)
+       .then(decodedText => mostrarResultado(decodedText))
+       .catch(err => document.getElementById('result').innerHTML = `❌ Não achei QR: ${err}`);
+    });
 
-        function gerarCodigo() {
-            const hoje = new Date();
-            const ano = hoje.getFullYear();
-            const mes = String(hoje.getMonth() + 1).padStart(2, '0');
-            const num = String(clientes.length + 1).padStart(3, '0');
-            document.getElementById('codigoCliente').value = `M-${ano}-${mes}-${num}`;
-        }
-
-        function trocarAba(nomeAba) {
-            document.querySelectorAll('.content').forEach(div => div.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            const idAba = nomeAba === 'scanner'? 'scanner-tab' : nomeAba;
-            document.getElementById(idAba).classList.add('active');
-            const botoes = ['home','scanner','clientes','admin'];
-            const index = botoes.indexOf(nomeAba);
-            if (index >= 0) document.querySelectorAll('.nav-item')[index].classList.add('active');
-            if (nomeAba === 'scanner') iniciarScanner();
-            if (nomeAba === 'home' || nomeAba === 'clientes') renderizarLista();
-        }
-
-        function renderizarLista() {
-            const lista = document.getElementById('listaClientes');
-            let validos = 0, expirados = 0;
-            if (clientes.length === 0) {
-                lista.innerHTML = '<p style="text-align:center;opacity:0.7;">Nenhum cliente cadastrado.</p>';
-                document.getElementById('totalClientes').innerText = 0;
-                document.getElementById('totalValidos').innerText = 0;
-                document.getElementById('totalExpirados').innerText = 0;
-                return;
-            }
-            lista.innerHTML = clientes.map((c, i) => {
-                const status = calcularStatus(c.dataInicio, c.dataFim);
-                if (status === '✅ Válido') validos++;
-                if (status.includes('Expirado')) expirados++;
-                let classe = 'status-valid';
-                if (status.includes('Expirado')) classe = 'status-exp';
-                if (status.includes('Pendente')) classe = 'status-pend';
-                return `
-                <div class="lista-item ${classe}" id="cliente-${c.codigo}">
-                    <strong>${c.nome}</strong><br>
-                    Código: ${c.codigo}<br>
-                    Validade: ${c.dataInicio} até ${c.dataFim}<br>
-                    Status: ${status}
-                    <div class="btn-group">
-                        <button class="small qr" onclick="mostrarQR('${c.codigo}', '${c.nome}')">QR</button>
-                        <button class="small edit" onclick="editarCliente(${i})">Editar</button>
-                        <button class="small" onclick="renovar30Dias(${i})">+30 dias</button>
-                        <button class="small delete" onclick="removerCliente(${i})">X</button>
-                    </div>
-                </div>
-            `}).join('');
-            document.getElementById('totalClientes').innerText = clientes.length;
-            document.getElementById('totalValidos').innerText = validos;
-            document.getElementById('totalExpirados').innerText = expirados;
-        }
-
-        function salvarCliente() {
-            const nome = document.getElementById('nomeCliente').value.trim();
-            const codigo = document.getElementById('codigoCliente').value.trim();
-            const dataInicio = document.getElementById('dataInicio').value;
-            const dataFim = document.getElementById('dataFim').value;
-            const editandoIndex = document.getElementById('editandoIndex').value;
-
-            if (!nome ||!codigo ||!dataInicio ||!dataFim) {
-                alert('Preenche todos os campos!');
-                return;
-            }
-
-            if (editandoIndex === '') {
-                // Novo cliente
-                if (clientes.find(c => c.codigo === codigo)) {
-                    alert('Código já cadastrado!');
-                    return;
-                }
-                clientes.push({ nome, codigo, dataInicio, dataFim });
-                alert('Cliente salvo!');
-            } else {
-                // Editando cliente
-                clientes[editandoIndex] = { nome, codigo, dataInicio, dataFim };
-                alert('Cliente atualizado!');
-                cancelarEdicao();
-            }
-
-            localStorage.setItem('clientesMilton', JSON.stringify(clientes));
-            document.getElementById('nomeCliente').value = '';
-            document.getElementById('codigoCliente').value = '';
-            renderizarLista();
-        }
-
-        function editarCliente(index) {
-            const c = clientes[index];
-            document.getElementById('editandoIndex').value = index;
-            document.getElementById('nomeCliente').value = c.nome;
-            document.getElementById('codigoCliente').value = c.codigo;
-            document.getElementById('dataInicio').value = c.dataInicio;
-            document.getElementById('dataFim').value = c.dataFim;
-            document.getElementById('tituloForm').innerText = 'Editando Cliente';
-            document.getElementById('btnSalvar').innerText = 'Atualizar Cliente';
-            document.getElementById('btnCancelar').style.display = 'inline-block';
-            trocarAba('admin');
-            window.scrollTo(0, 0);
-        }
-
-        function cancelarEdicao() {
-            document.getElementById('editandoIndex').value = '';
-            document.getElementById('nomeCliente').value = '';
-            document.getElementById('codigoCliente').value = '';
-            document.getElementById('dataInicio').valueAsDate = new Date();
-            document.getElementById('dataFim').value = '';
-            document.getElementById('tituloForm').innerText = 'Cadastrar Cliente';
-            document.getElementById('btnSalvar').innerText = 'Salvar Cliente';
-            document.getElementById('btnCancelar').style.display = 'none';
-        }
-
-        function renovar30Dias(index) {
-            const c = clientes[index];
-            const dataFim = new Date(c.dataFim);
-            dataFim.setDate(dataFim.getDate() + 30);
-            c.dataFim = dataFim.toISOString().split('T')[0];
-            localStorage.setItem('clientesMilton', JSON.stringify(clientes));
-            alert(`${c.nome} renovado até ${c.dataFim}`);
-            renderizarLista();
-        }
-
-        function importarPlanilha() {
-            const texto = document.getElementById('textoImportar').value.trim();
-            if (!texto) return;
-            const linhas = texto.split('\n');
-            let importados = 0;
-            linhas.forEach(linha => {
-                const [nome, codigo, dataInicio, dataFim] = linha.split('\t');
-                if (nome && codigo && dataInicio && dataFim) {
-                    if (!clientes.find(c => c.codigo === codigo.trim())) {
-                        clientes.push({ nome: nome.trim(), codigo: codigo.trim(), dataInicio, dataFim });
-                        importados++;
-                    }
-                }
-            });
-            localStorage.setItem('clientesMilton', JSON.stringify(clientes));
-            document.getElementById('textoImportar').value = '';
-            alert(`${importados} clientes importados!`);
-            renderizarLista();
-        }
-
-        function mostrarQR(codigo, nome) {
-            document.getElementById('nomeQR').innerText = nome;
-            document.getElementById('codigoQR').innerText = codigo;
-            document.getElementById('qrcode').innerHTML = '';
-            QRCode.toCanvas(document.createElement('canvas'), codigo, { width: 250 }, function (err, canvas) {
-                if (!err) document.getElementById('qrcode').appendChild(canvas);
-            });
-            document.getElementById('modalQR').style.display = 'flex';
-        }
-
-        function fecharQR() {
-            document.getElementById('modalQR').style.display = 'none';
-        }
-
-        function removerCliente(index) {
-            if (confirm('Apagar esse cliente?')) {
-                clientes.splice(index, 1);
-                localStorage.setItem('clientesMilton', JSON.stringify(clientes));
-                renderizarLista();
-            }
-        }
-
-        function limparTodos() {
-            if (confirm('APAGAR TODOS OS CLIENTES?')) {
-                clientes = [];
-                localStorage.removeItem('clientesMilton');
-                renderizarLista();
-            }
-        }
-
-        function exportarClientes() {
-            const texto = clientes.map(c => `${c.nome}\t${c.codigo}\t${c.dataInicio}\t${c.dataFim}`).join('\n');
-            navigator.clipboard.writeText(texto);
-            alert('Lista copiada! Cola no Excel/Sheets.');
-        }
-
-        let html5QrcodeScanner;
-        function iniciarScanner() {
-            document.getElementById('resultado').innerText = 'Aponte para o QR Code...';
-            if (html5QrcodeScanner) html5QrcodeScanner.clear();
-            html5QrcodeScanner = new Html5QrcodeScanner("scanner", { fps: 10, qrbox: 250 }, false);
-            html5QrcodeScanner.render(onScanSuccess, () => {});
-        }
-
-        function onScanSuccess(decodedText) {
-            html5QrcodeScanner.clear();
-            let codigo = decodedText;
-            if (decodedText.includes('qrco.de/')) codigo = decodedText.split('qrco.de/')[1];
-            if (decodedText.includes('codigo=')) codigo = new URL(decodedText).searchParams.get('codigo');
-            buscarCliente(codigo);
-        }
-
-        function buscarCliente(codigo) {
-            trocarAba('clientes');
-            setTimeout(() => {
-                document.querySelectorAll('.lista-item').forEach(item => {
-                    item.style.background = '#1e3a5f';
-                });
-                const elemento = document.getElementById('cliente-' + codigo);
-                if (elemento) {
-                    elemento.style.background = '#2e7d32';
-                    elemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                } else {
-                    alert(`Cliente ${codigo} não encontrado.`);
-                }
-            }, 300);
-        }
-    </script>
+    // Inicia gerando
+    gerarQR();
+  </script>
 </body>
-    </html>
+      </html>
