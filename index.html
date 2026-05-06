@@ -1,209 +1,203 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR Completo PFS</title>
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #fff;
-      text-align: center;
-      padding: 20px;
-      margin: 0;
-    }
-   .aba {
-      display: inline-block;
-      padding: 12px 24px;
-      background: #1e1e1e;
-      margin: 5px;
-      border-radius: 6px 6px 0 0;
-      cursor: pointer;
-      font-weight: bold;
-    }
-   .aba.ativo {
-      background: #00d4aa;
-      color: #000;
-    }
-   .conteudo {
-      display: none;
-      background: #1e1e1e;
-      padding: 20px;
-      border-radius: 8px;
-      max-width: 500px;
-      margin: 0 auto;
-    }
-   .conteudo.ativo {
-      display: block;
-    }
-    #reader, #qrcode {
-      width: 100%;
-      max-width: 350px;
-      margin: 20px auto;
-      background: #fff;
-      padding: 15px;
-      border-radius: 8px;
-    }
-    #reader {
-      border: 2px solid #00d4aa;
-      padding: 0;
-    }
-    input {
-      width: 90%;
-      max-width: 400px;
-      padding: 12px;
-      border-radius: 6px;
-      border: 2px solid #00d4aa;
-      background: #111;
-      color: #fff;
-      font-size: 16px;
-      margin: 10px 0;
-    }
-    button {
-      background: #00d4aa;
-      color: #000;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 6px;
-      font-size: 16px;
-      font-weight: bold;
-      margin: 8px;
-      cursor: pointer;
-    }
-   .btn-sec {
-      background: #2563eb;
-      color: #fff;
-    }
-   .btn-off {
-      background: #ef4444;
-      color: #fff;
-    }
-    #result {
-      margin-top: 15px;
-      padding: 15px;
-      background: #111;
-      border-radius: 8px;
-      word-break: break-all;
-      min-height: 20px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MILTON TECH - Scanner Universal</title>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --azul-milton: #0066FF;
+            --verde-milton: #00D26A;
+            --bg-dark: #0A0F1E;
+            --bg-card: #111827;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: var(--bg-dark);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            text-align: center;
+        }
+       .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+       .logo {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--azul-milton);
+            margin-bottom: 5px;
+        }
+       .logo span { color: var(--verde-milton); }
+       .subtitle {
+            color: #9CA3AF;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        #reader {
+            width: 100%;
+            border: 3px solid var(--azul-milton);
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--bg-card);
+            margin: 20px 0;
+        }
+      .botoes {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+      .btn {
+            background: var(--azul-milton);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+      .btn:hover { opacity: 0.9; transform: translateY(-2px); }
+      .btn-stop { background: #EF4444; }
+      .btn-galeria { background: var(--verde-milton); }
+        #resultado {
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--bg-card);
+            border-radius: 10px;
+            border-left: 4px solid var(--verde-milton);
+            word-break: break-all;
+            text-align: left;
+            display: none;
+        }
+        #file-input { display: none; }
+      .footer {
+            margin-top: 40px;
+            color: #6B7280;
+            font-size: 12px;
+        }
+      .footer strong { color: var(--verde-milton); }
+    </style>
 </head>
 <body>
-  <h2>⚡ QR Completo PFS</h2>
+    <div class="container">
+        <div class="logo">MILTON <span>TECH</span></div>
+        <div class="subtitle">Scanner Universal - Lê e abre qualquer QR Code</div>
 
-  <div class="aba ativo" onclick="trocarAba('gerar')">Gerar QR</div>
-  <div class="aba" onclick="trocarAba('ler')">Ler QR</div>
+        <div id="reader"></div>
 
-  <!-- ABA GERAR -->
-  <div id="gerar" class="conteudo ativo">
-    <h3>Gerar QR Code</h3>
-    <input type="text" id="texto" placeholder="Digita: PFS-9A8B7C6D" value="PFS-9A8B7C6D">
-    <br>
-    <button onclick="gerarQR()">Gerar</button>
-    <button class="btn-sec" onclick="baixarQR()">Baixar PNG</button>
-    <button class="btn-sec" onclick="copiarTexto()">Copiar Texto</button>
-    <div id="qrcode"></div>
-  </div>
+        <div class="botoes">
+            <button id="start-btn" class="btn" onclick="iniciarScanner()">
+                <i class="fa-solid fa-camera"></i> Iniciar Scanner
+            </button>
+            <button id="stop-btn" class="btn btn-stop" onclick="pararScanner()" style="display:none;">
+                <i class="fa-solid fa-stop"></i> Parar
+            </button>
+            <button class="btn btn-galeria" onclick="document.getElementById('file-input').click()">
+                <i class="fa-solid fa-image"></i> Ler da Galeria
+            </button>
+            <input type="file" id="file-input" accept="image/*" onchange="lerPorImagem(event)">
+        </div>
 
-  <!-- ABA LER -->
-  <div id="ler" class="conteudo">
-    <h3>Ler QR Code</h3>
-    <div id="reader"></div>
-    <button onclick="iniciarCamera()">Ligar Câmera</button>
-    <button class="btn-off" onclick="pararCamera()">Parar</button>
-    <p>OU</p>
-    <input type="file" id="qr-input-file" accept="image/*">
-    <div id="result">Aguardando leitura...</div>
-  </div>
+        <div id="resultado"></div>
 
-  <script>
-    let html5QrCode;
-    let cameraLigada = false;
+        <div class="footer">
+            Desenvolvido por <strong>MILTON TECH</strong> | Luanda, Angola
+        </div>
+    </div>
 
-    // TROCAR ABA
-    function trocarAba(aba) {
-      document.querySelectorAll('.aba').forEach(el => el.classList.remove('ativo'));
-      document.querySelectorAll('.conteudo').forEach(el => el.classList.remove('ativo'));
-      event.target.classList.add('ativo');
-      document.getElementById(aba).classList.add('ativo');
-      if (aba === 'ler' &&!cameraLigada) iniciarCamera();
-      if (aba === 'gerar') pararCamera();
-    }
+    <script>
+        let html5QrcodeScanner;
+        let scannerRodando = false;
 
-    // GERADOR
-    function gerarQR() {
-      const texto = document.getElementById('texto').value;
-      const divQR = document.getElementById('qrcode');
-      if (!texto) return alert('Digita alguma coisa!');
-      divQR.innerHTML = '';
-      new QRCode(divQR, {
-        text: texto,
-        width: 280,
-        height: 280,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
-      });
-    }
+        function mostrarResultado(texto) {
+            const div = document.getElementById('resultado');
+            div.style.display = 'block';
+            div.innerHTML = `<strong>QR Lido:</strong><br>${texto}`;
+        }
 
-    function baixarQR() {
-      const img = document.querySelector('#qrcode img');
-      if (!img) return alert('Gera o QR primeiro!');
-      const link = document.createElement('a');
-      link.href = img.src;
-      link.download = document.getElementById('texto').value + '.png';
-      link.click();
-    }
+        function iniciarScanner() {
+            document.getElementById('start-btn').style.display = 'none';
+            document.getElementById('stop-btn').style.display = 'inline-flex';
+            document.getElementById('resultado').style.display = 'none';
 
-    function copiarTexto() {
-      navigator.clipboard.writeText(document.getElementById('texto').value);
-      alert('Texto copiado!');
-    }
+            html5QrcodeScanner = new Html5Qrcode("reader");
 
-    // LEITOR
-    function mostrarResultado(texto) {
-      document.getElementById('result').innerHTML = `<strong>✅ Leu:</strong><br>${texto}`;
-    }
+            const config = {
+                fps: 10,
+                qrbox: { width: 250, height: 250 },
+                aspectRatio: 1.0
+            };
 
-    function iniciarCamera() {
-      if (cameraLigada) return;
-      html5QrCode = new Html5Qrcode("reader");
-      html5QrCode.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: 250 },
-        (decodedText) => mostrarResultado(decodedText),
-        () => {}
-      ).then(() => {
-        cameraLigada = true;
-        document.getElementById('result').innerHTML = 'Câmera ligada. Aponta pro QR...';
-      }).catch(err => {
-        document.getElementById('result').innerHTML = `❌ Erro: ${err}`;
-      });
-    }
+            html5QrcodeScanner.start(
+                { facingMode: "environment" }, // Câmera traseira por padrão
+                config,
+                onScanSuccess,
+                onScanFailure
+            ).then(() => {
+                scannerRodando = true;
+                mostrarResultado('Aponte a câmera para o QR Code...');
+            }).catch(err => {
+                mostrarResultado(`Erro ao iniciar câmera: ${err}`);
+                pararScanner();
+            });
+        }
 
-    function pararCamera() {
-      if (html5QrCode && cameraLigada) {
-        html5QrCode.stop().then(() => {
-          cameraLigada = false;
-          document.getElementById('reader').innerHTML = '';
-        });
-      }
-    }
+        function pararScanner() {
+            if (html5QrcodeScanner && scannerRodando) {
+                html5QrcodeScanner.stop().then(() => {
+                    scannerRodando = false;
+                    document.getElementById('start-btn').style.display = 'inline-flex';
+                    document.getElementById('stop-btn').style.display = 'none';
+                    document.getElementById('reader').innerHTML = '';
+                    mostrarResultado('Scanner parado. Toque em "Iniciar Scanner" para ler novamente.');
+                }).catch(err => console.log('Erro ao parar:', err));
+            }
+        }
 
-    // Ler de imagem
-    document.getElementById('qr-input-file').addEventListener('change', e => {
-      if (e.target.files.length == 0) return;
-      const html5QrCodeFile = new Html5Qrcode("reader");
-      html5QrCodeFile.scanFile(e.target.files[0], true)
-       .then(decodedText => mostrarResultado(decodedText))
-       .catch(err => document.getElementById('result').innerHTML = `❌ Não achei QR: ${err}`);
-    });
+        // FUNÇÃO PRINCIPAL: ABRE QUALQUER COISA
+        function onScanSuccess(decodedText, decodedResult) {
+            pararScanner();
+            mostrarResultado(`Redirecionando...`);
 
-    // Inicia gerando
-    gerarQR();
-  </script>
+            // Se for link, abre direto. Se não for, tenta abrir mesmo assim.
+            // Facebook, Instagram, Planilha, YouTube, WhatsApp, Pix, qualquer coisa.
+            setTimeout(() => {
+                window.location.href = decodedText;
+            }, 500);
+        }
+
+        function onScanFailure(error) {
+            // Ignora erro de "QR não encontrado"
+        }
+
+        // Ler QR por imagem
+        function lerPorImagem(e) {
+            if (e.target.files.length == 0) return;
+
+            const imageFile = e.target.files[0];
+            const html5QrCode = new Html5Qrcode("reader");
+
+            mostrarResultado('Analisando imagem...');
+
+            html5QrCode.scanFile(imageFile, true)
+          .then(decodedText => {
+                onScanSuccess(decodedText);
+            })
+          .catch(err => {
+                mostrarResultado(`Erro: Não encontrei QR Code nessa imagem. ${err}`);
+            });
+        }
+    </script>
 </body>
-      </html>
+          </html>
