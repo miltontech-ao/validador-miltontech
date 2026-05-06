@@ -10,19 +10,28 @@
         :root { --azul: #0066FF; --verde: #00D26A; --bg: #0A0F1E; --card: #111827; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; padding: 20px; text-align: center; }
-       .container { max-width: 600px; margin: 0 auto; }
-       .logo { font-size: 32px; font-weight: 900; color: var(--azul); margin-bottom: 5px; }
-       .logo span { color: var(--verde); }
-       .subtitle { color: #9CA3AF; margin-bottom: 25px; font-size: 14px; }
-        #reader { width: 100%; border: 3px solid var(--azul); border-radius: 16px; overflow: hidden; background: var(--card); margin: 20px 0; }
-       .botoes { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 20px 0; }
-       .btn { background: var(--azul); color: white; border: none; padding: 14px 20px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-       .btn-stop { background: #EF4444; }
-       .btn-galeria { background: var(--verde); }
-        #resultado { margin-top: 20px; padding: 15px; background: var(--card); border-radius: 10px; border-left: 4px solid var(--verde); word-break: break-all; text-align: left; display: none; }
+    .container { max-width: 400px; margin: 0 auto; }
+    .logo { font-size: 28px; font-weight: 900; color: var(--azul); margin-bottom: 5px; }
+    .logo span { color: var(--verde); }
+    .subtitle { color: #9CA3AF; margin-bottom: 20px; font-size: 13px; }
+        #reader {
+            width: 100%;
+            max-width: 320px;
+            height: 320px;
+            margin: 15px auto;
+            border: 3px solid var(--azul);
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--card);
+        }
+    .botoes { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 15px 0; }
+    .btn { background: var(--azul); color: white; border: none; padding: 12px 16px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .btn-stop { background: #EF4444; }
+    .btn-galeria { background: var(--verde); }
+        #resultado { margin-top: 15px; padding: 12px; background: var(--card); border-radius: 10px; border-left: 4px solid var(--verde); word-break: break-all; text-align: left; display: none; font-size: 14px; }
         #file-input { display: none; }
-       .footer { margin-top: 40px; color: #6B7280; font-size: 12px; }
-       .footer strong { color: var(--verde); }
+    .footer { margin-top: 30px; color: #6B7280; font-size: 11px; }
+    .footer strong { color: var(--verde); }
     </style>
 </head>
 <body>
@@ -31,25 +40,49 @@
         <div class="subtitle">Scanner Universal - Lê e abre qualquer QR Code</div>
         <div id="reader"></div>
         <div class="botoes">
-            <button id="start-btn" class="btn" onclick="iniciarScanner()"><i class="fa-solid fa-camera"></i> Iniciar Scanner</button>
+            <button id="start-btn" class="btn" onclick="iniciarScanner()"><i class="fa-solid fa-camera"></i> Scanner</button>
             <button id="stop-btn" class="btn btn-stop" onclick="pararScanner()" style="display:none;"><i class="fa-solid fa-stop"></i> Parar</button>
-            <button class="btn btn-galeria" onclick="document.getElementById('file-input').click()"><i class="fa-solid fa-image"></i> Ler da Galeria</button>
+            <button class="btn btn-galeria" onclick="document.getElementById('file-input').click()"><i class="fa-solid fa-image"></i> Galeria</button>
             <input type="file" id="file-input" accept="image/*" onchange="lerPorImagem(event)">
         </div>
         <div id="resultado"></div>
         <div class="footer">Desenvolvido por <strong>MILTON TECH</strong> | Luanda, Angola</div>
     </div>
     <script>
-        let html5QrcodeScanner; let scannerRodando = false;
-        function mostrarResultado(texto) { const div = document.getElementById('resultado'); div.style.display = 'block'; div.innerHTML = `<strong>Status:</strong><br>${texto}`; }
+        let html5QrcodeScanner;
+        let scannerRodando = false;
+
+        function mostrarResultado(texto) {
+            const div = document.getElementById('resultado');
+            div.style.display = 'block';
+            div.innerHTML = `<strong>Status:</strong><br>${texto}`;
+        }
+
         function iniciarScanner() {
             document.getElementById('start-btn').style.display = 'none';
             document.getElementById('stop-btn').style.display = 'inline-flex';
+            document.getElementById('resultado').style.display = 'none';
+
             html5QrcodeScanner = new Html5Qrcode("reader");
-            html5QrcodeScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, onScanSuccess, () => {}).then(() => {
-                scannerRodando = true; mostrarResultado('Aponte a câmera para o QR Code...');
-            }).catch(err => { mostrarResultado(`Erro: ${err}`); pararScanner(); });
+
+            // TAMANHO NORMAL AGORA: 200x200 em vez de 250x250
+            const config = {
+                fps: 10,
+                qrbox: { width: 200, height: 200 },
+                aspectRatio: 1.0
+            };
+
+            html5QrcodeScanner.start({ facingMode: "environment" }, config, onScanSuccess, () => {})
+          .then(() => {
+                scannerRodando = true;
+                mostrarResultado('Aponte a câmera para o QR Code...');
+            })
+          .catch(err => {
+                mostrarResultado(`Erro ao ligar câmera: ${err}. Verifica as permissões.`);
+                pararScanner();
+            });
         }
+
         function pararScanner() {
             if (html5QrcodeScanner && scannerRodando) {
                 html5QrcodeScanner.stop().then(() => {
@@ -57,21 +90,43 @@
                     document.getElementById('start-btn').style.display = 'inline-flex';
                     document.getElementById('stop-btn').style.display = 'none';
                     document.getElementById('reader').innerHTML = '';
+                }).catch(err => console.log('Erro ao parar:', err));
+            }
+        }
+
+        function onScanSuccess(decodedText) {
+            pararScanner();
+
+            if (decodedText.startsWith('http://') || decodedText.startsWith('https://')) {
+                mostrarResultado(`Abrindo link: ${decodedText}`);
+                window.open(decodedText, '_blank');
+            }
+            else if (decodedText.startsWith('PFS-')) {
+                const linkPlanilha = 'https://docs.google.com/spreadsheets/d/13OgQ7fZQAxZK--H3jQHByEE_-rmZoXynEYtUntVGZxE/edit#gid=0&range=B:B&search=' + decodedText;
+                mostrarResultado(`Buscando PFS: ${decodedText}`);
+                window.open(linkPlanilha, '_blank');
+            }
+            else {
+                mostrarResultado(`QR Lido: ${decodedText}`);
+                navigator.clipboard.writeText(decodedText).then(() => {
+                    alert('Texto copiado:\n\n' + decodedText);
+                }).catch(() => {
+                    alert('QR Lido:\n\n' + decodedText);
                 });
             }
         }
-        function onScanSuccess(decodedText) {
-            pararScanner();
-            mostrarResultado(`Abrindo: ${decodedText}`);
-            setTimeout(() => { window.location.href = decodedText; }, 500);
-        }
+
         function lerPorImagem(e) {
             if (e.target.files.length == 0) return;
             const html5QrCode = new Html5Qrcode("reader");
             mostrarResultado('Analisando imagem...');
-            html5QrCode.scanFile(e.target.files[0], true).then(decodedText => {
+            html5QrCode.scanFile(e.target.files[0], true)
+          .then(decodedText => {
                 onScanSuccess(decodedText);
-            }).catch(err => { mostrarResultado(`Erro: QR não encontrado na imagem`); });
+            })
+          .catch(err => {
+                mostrarResultado(`Erro: Não encontrei QR Code nessa imagem`);
+            });
         }
     </script>
 </body>
